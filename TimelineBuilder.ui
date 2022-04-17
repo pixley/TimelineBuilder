@@ -1,28 +1,184 @@
-<UI version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>TimelineBuilderClass</class>
- <widget class="QMainWindow" name="TimelineBuilderClass" >
-  <property name="objectName" >
-   <string notr="true">TimelineBuilderClass</string>
-  </property>
-  <property name="geometry" >
+ <widget class="QMainWindow" name="TimelineBuilderClass">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
-    <height>400</height>
+    <width>866</width>
+    <height>729</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>TimelineBuilder</string>
-  </property>  <widget class="QMenuBar" name="menuBar" />
-  <widget class="QToolBar" name="mainToolBar" />
-  <widget class="QWidget" name="centralWidget" />
-  <widget class="QStatusBar" name="statusBar" />
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item>
+     <layout class="QVBoxLayout" name="mainVerticalLayout">
+      <property name="spacing">
+       <number>6</number>
+      </property>
+      <property name="sizeConstraint">
+       <enum>QLayout::SetNoConstraint</enum>
+      </property>
+      <item>
+       <widget class="QGraphicsView" name="timelineView">
+        <property name="frameShape">
+         <enum>QFrame::NoFrame</enum>
+        </property>
+        <property name="horizontalScrollBarPolicy">
+         <enum>Qt::ScrollBarAlwaysOn</enum>
+        </property>
+        <property name="dragMode">
+         <enum>QGraphicsView::ScrollHandDrag</enum>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>866</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu_File">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <addaction name="action_New_Timeline"/>
+    <addaction name="action_Open_Timeline"/>
+    <addaction name="action_Save_Timeline"/>
+    <addaction name="separator"/>
+    <addaction name="actionClose"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="actionAbout"/>
+   </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>&amp;Edit</string>
+    </property>
+    <addaction name="action_Undo"/>
+    <addaction name="action_Redo"/>
+   </widget>
+   <addaction name="menu_File"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QToolBar" name="mainToolBar">
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="action_New_Timeline"/>
+   <addaction name="action_Open_Timeline"/>
+   <addaction name="action_Save_Timeline"/>
+   <addaction name="separator"/>
+   <addaction name="action_Undo"/>
+   <addaction name="action_Redo"/>
+   <addaction name="separator"/>
+   <addaction name="action_Timeline_Settings"/>
+   <addaction name="action_Add_Era"/>
+   <addaction name="action_Add_Event"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <action name="action_New_Timeline">
+   <property name="text">
+    <string>&amp;New Timeline</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="action_Open_Timeline">
+   <property name="text">
+    <string>&amp;Open Timeline</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionClose">
+   <property name="text">
+    <string>&amp;Close</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+F4</string>
+   </property>
+  </action>
+  <action name="action_Save_Timeline">
+   <property name="text">
+    <string>&amp;Save Timeline</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>&amp;About</string>
+   </property>
+  </action>
+  <action name="action_Undo">
+   <property name="text">
+    <string>&amp;Undo</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Z</string>
+   </property>
+  </action>
+  <action name="action_Redo">
+   <property name="text">
+    <string>&amp;Redo</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Y</string>
+   </property>
+  </action>
+  <action name="action_Add_Era">
+   <property name="text">
+    <string>&amp;Add Era</string>
+   </property>
+  </action>
+  <action name="action_Add_Event">
+   <property name="text">
+    <string>&amp;Add Event</string>
+   </property>
+  </action>
+  <action name="action_Timeline_Settings">
+   <property name="text">
+    <string>&amp;Timeline Settings</string>
+   </property>
+  </action>
  </widget>
- <layoutDefault spacing="6" margin="11" />
- <pixmapfunction></pixmapfunction>
+ <layoutdefault spacing="6" margin="11"/>
  <resources>
-   <include location="TimelineBuilder.qrc"/>
+  <include location="TimelineBuilder.qrc"/>
  </resources>
  <connections/>
-</UI>
+</ui>
