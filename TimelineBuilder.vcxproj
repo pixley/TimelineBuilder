@@ -58,6 +58,24 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
   </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(Qt_INCLUDEPATH_);$(LOCALAPPDATA)\Programs\Python\Python39\include</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(LOCALAPPDATA)\Programs\Python\Python39\libs</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies);$(Qt_LIBS_);python39.lib</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(Qt_INCLUDEPATH_);$(LOCALAPPDATA)\Programs\Python\Python39\include</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(LOCALAPPDATA)\Programs\Python\Python39\libs</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies);$(Qt_LIBS_);python39.lib</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
     <ClCompile>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
@@ -87,23 +105,23 @@
   <ItemGroup>
     <QtRcc Include="TimelineBuilder.qrc" />
     <QtUic Include="TimelineBuilder.ui" />
-    <QtMoc Include="TimelineBuilder.h" />
-    <ClCompile Include="Calendar.cpp" />
-    <ClCompile Include="CommonTypes.cpp" />
-    <ClCompile Include="JsonableObject.cpp" />
-    <ClCompile Include="TBEvent.cpp" />
-    <ClCompile Include="Time.cpp" />
-    <ClCompile Include="TimelineBuilder.cpp" />
-    <ClCompile Include="main.cpp" />
+    <QtMoc Include="source/TimelineBuilder.h" />
+    <ClCompile Include="source/Calendar.cpp" />
+    <ClCompile Include="source/CommonTypes.cpp" />
+    <ClCompile Include="source/JsonableObject.cpp" />
+    <ClCompile Include="source/TBEvent.cpp" />
+    <ClCompile Include="source/Time.cpp" />
+    <ClCompile Include="source/TimelineBuilder.cpp" />
+    <ClCompile Include="source/main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Calendar.h" />
-    <ClInclude Include="CommonTypes.h" />
-    <ClInclude Include="JsonableObject.h" />
-    <ClInclude Include="TBEra.h" />
-    <ClInclude Include="TBEvent.h" />
-    <ClInclude Include="TBTimeline.h" />
-    <ClInclude Include="Time.h" />
+    <ClInclude Include="source/Calendar.h" />
+    <ClInclude Include="source/CommonTypes.h" />
+    <ClInclude Include="source/JsonableObject.h" />
+    <ClInclude Include="source/TBEra.h" />
+    <ClInclude Include="source/TBEvent.h" />
+    <ClInclude Include="source/TBTimeline.h" />
+    <ClInclude Include="source/Time.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

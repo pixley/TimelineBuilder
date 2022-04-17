@@ -21,6 +21,9 @@
       <UniqueIdentifier>{639EADAA-A684-42e4-A9AD-28FC9BCB8F7C}</UniqueIdentifier>
       <Extensions>ts</Extensions>
     </Filter>
+    <Filter Include="Script Files">
+      <UniqueIdentifier>{fb425f3e-5bef-4f37-9db3-7b13d420c4de}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="TimelineBuilder.qrc">
@@ -29,53 +32,53 @@
     <QtUic Include="TimelineBuilder.ui">
       <Filter>Form Files</Filter>
     </QtUic>
-    <QtMoc Include="TimelineBuilder.h">
+    <QtMoc Include="source/TimelineBuilder.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <ClCompile Include="TimelineBuilder.cpp">
+    <ClCompile Include="source/TimelineBuilder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="source/main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="JsonableObject.cpp">
+    <ClCompile Include="source/JsonableObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CommonTypes.cpp">
+    <ClCompile Include="source/CommonTypes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TBEvent.cpp">
+    <ClCompile Include="source/TBEvent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Calendar.cpp">
+    <ClCompile Include="source/Calendar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Time.cpp">
+    <ClCompile Include="source/Time.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="TBEvent.h">
+    <ClInclude Include="source/TBEvent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CommonTypes.h">
+    <ClInclude Include="source/CommonTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="JsonableObject.h">
+    <ClInclude Include="source/JsonableObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TBTimeline.h">
+    <ClInclude Include="source/TBTimeline.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Calendar.h">
+    <ClInclude Include="source/Calendar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TBEra.h">
+    <ClInclude Include="source/TBEra.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Time.h">
+    <ClInclude Include="source/Time.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

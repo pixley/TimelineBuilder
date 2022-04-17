@@ -301,8 +301,10 @@ TBTimespan TBCalendarSettings::CreateTimespan(const TBDate& startDate, const TBD
 	{
 		leapYearsBetween = entireYearsBetween / LeapYearFrequency;
 
-		int16 dateOneCyclePosition = dateOne.Year % LeapYearFrequency;
-		int16 dateTwoCyclePosition = dateTwo.Year % LeapYearFrequency;
+		// If there is no year zero, we need to offset negative years by 1 for leap year calculations
+		// For example, in the real-life Gregorian calendar, 1 BCE and 5 BCE are leap years, since 1 BCE is four years prior to 4 CE.
+		int16 dateOneCyclePosition = (HasYearZero || dateOne.Year >= 0 ? dateOne.Year : dateOne.Year + 1) % LeapYearFrequency;
+		int16 dateTwoCyclePosition = (HasYearZero || dateTwo.Year >= 0 ? dateTwo.Year : dateTwo.Year + 1) % LeapYearFrequency;
 		// The modulo operator returns a negative result if the signs of the operands are different.
 		// To compensate for this, we add the leap year frequency to a negative cycle position to get the true positive position.
 		if (dateOneCyclePosition < 0)
