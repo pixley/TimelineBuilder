@@ -16,10 +16,17 @@ typedef double float64;
 
 /*
 	Boundary values
+
+	An IEEE-754 double-precision mantissa is 52 bits, meaning that it is possible for a float64 to represent numbers up to 2^53
+	with at least integer precision.  This effectively provides bounds on the conversion between float64 and int64.
+	Incidentally, 2^53 is over 9 quadrillion, which means that only the most ridiculous timelines would even reach these bounds.
+	Specifically, in real life, 2^53 days is about 24.66 TRILLION YEARS.  THE SUN'S ENTIRE LIFESPAN WOULD BARELY DENT THAT.
+
+	Now, you may ask, why not just use 32-bit floats and ints instead?  Because that would only allow for integer precision
+	up to just shy of 46 thousand years.  While that would work for a real-life, Golarion, or Forgotten Realms timeline,
+	modern PCs have more than enough space to handle 64-bit values for this stuff.  And it's not like I'm bothering with a 32-bit
+	build in freakin' 2022 anyway.
 */
-// An IEEE-754 double-precision mantissa is 52 bits, meaning that it is possible for a float64 to represent numbers up to 2^53
-// with at least integer precision.  This effectively provides bounds on the conversion between float64 and int64.
-// Incidentally, 2^53 is over 9 quadrillion, which means that only the most ridiculous timelines would even reach these bounds.
 const int64 MAX_I64_TO_F64 = 1ll << 53;
 const int64 MIN_I64_TO_F64 = -(1ll << 53);
 const float64 MAX_F64_TO_I64 = 0x1p53;
@@ -58,30 +65,4 @@ ENUM_CLASS(TBEventType, uint8,
 	Cosmic,
 	Religious,
 	Innovation
-)
-
-ENUM_CLASS(TBDateFormat, uint8,
-	MDY,
-	DMY,
-	YMD
-)
-
-ENUM_CLASS(TBMonthFormat, uint8,
-	Name,
-	Abbreviation,
-	Number
-)
-
-ENUM_CLASS(TBWeekdayFormat, uint8,
-	None,
-	Full,
-	Abbreviated
-)
-
-ENUM_CLASS(TBDateRounding, uint8,
-	Floor,
-	Nearest,
-	Ceiling,
-	ToZero,
-	FromZero
 )

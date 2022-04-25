@@ -58,6 +58,12 @@
     <ClCompile Include="source/Time.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\TestSuite.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\JsonFiles.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source/TBEvent.h">
@@ -81,5 +87,22 @@
     <ClInclude Include="source/Time.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="source/PyBind.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Version.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\TestSuite.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\JsonFiles.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="scripts\base_solar_cal.py">
+      <Filter>Script Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

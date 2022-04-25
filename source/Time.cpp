@@ -1,153 +1,57 @@
 #include "Time.h"
 
+// Just so I don't have to write a whole bunch of operator implementations twice.
+#define IMPLEMENT_ONE_COMPARISON(type, operatorName, operatorSymbol, comparedValue) \
+bool type::operatorName(const type& other) const { \
+	return comparedValue operatorSymbol other.comparedValue; \
+}
+#define IMPLEMENT_ALL_COMPARISONS(type, comparedValue) \
+IMPLEMENT_ONE_COMPARISON(type, operator<, <, comparedValue) \
+IMPLEMENT_ONE_COMPARISON(type, operator>, >, comparedValue) \
+IMPLEMENT_ONE_COMPARISON(type, operator==, ==, comparedValue) \
+IMPLEMENT_ONE_COMPARISON(type, operator!=, !=, comparedValue) \
+IMPLEMENT_ONE_COMPARISON(type, operator<=, <=, comparedValue) \
+IMPLEMENT_ONE_COMPARISON(type, operator>=, >=, comparedValue)
+
 /*
 	TBDate
 */
-TBDate::TBDate() :
-	Year(0),
-	Month(0),
-	Day(0),
-	Season(0),
-	ValidDate(false)
+TBDate::TBDate() : Days(0)
 {
 
 }
 
-TBDate::TBDate(int64 inYear, uint16 inMonth, uint16 inDay, uint8 inSeason) :
-	Year(inYear),
-	Month(inMonth),
-	Day(inDay),
-	Season(inSeason),
-	ValidDate(true)
+TBDate::TBDate(int64 inDays) : Days(inDays)
 {
 
 }
 
-bool TBDate::LoadFromJson(const QJsonObject& jsonObject)
-{
-	JsonableObject::LoadFromJson(jsonObject);
-
-	Year = JsonToInt64(jsonObject, "year");
-	Month = JsonToInt32(jsonObject, "month");
-	Day = JsonToInt32(jsonObject, "day");
-	Season = JsonToInt32(jsonObject, "season");
-	ValidDate = true;
-
-	return LoadSuccessful;
-}
-
-void TBDate::PopulateJson(QJsonObject& jsonObject) const
-{
-	jsonObject["year"] = Year;
-	jsonObject["month"] = Month;
-	jsonObject["day"] = Day;
-	jsonObject["season"] = Season;
-}
-
-bool TBDate::IsValid() const
-{
-	// If a day but no month is specified, then the date is invalid, even if it had originally been validly generated.
-	return ValidDate && (Day == 0 || Month != 0);
-}
-
-bool TBDate::operator<(const TBDate& other) const
-{
-	if (Year < other.Year)
-	{
-		return true;
-	}
-	else if (Year == other.Year)
-	{
-		if (Month < other.Month)
-		{
-			return true;
-		}
-		else if (Month == other.Month)
-		{
-			return Day < other.Day;
-		}
-	}
-
-	return false;
-}
-
-bool TBDate::operator>(const TBDate& other) const
-{
-	return !(*this < other) && *this != other;
-}
-
-bool TBDate::operator==(const TBDate& other) const
-{
-	return Year == other.Year && Month == other.Month && Day == other.Day;
-}
-
-bool TBDate::operator!=(const TBDate& other) const
-{
-	return Year != other.Year || Month != other.Month || Day != other.Day;
-}
+IMPLEMENT_ALL_COMPARISONS(TBDate, Days)
 
 /*
 	TBTimespan
 */
-TBTimespan::TBTimespan() :
-	Past(false),
-	Years(0),
-	Months(0),
-	Days(0),
-	Seasons(0),
-	WeeksRemainingAfterYears(0),
-	DaysRemainingAfterYears(0),
-	WeeksRemainingAfterMonths(0),
-	TotalMonths(0),
-	TotalWeeks(0),
-	TotalDays(0),
-	TotalSeasons(0)
+TBTimespan::TBTimespan() : Days(0)
 {
 
 }
 
-int64 TBTimespan::GetSignedTotalDays() const
+TBTimespan::TBTimespan(int64 inDays) : Days(inDays)
 {
-	return Past ? -((int64)TotalDays) : TotalDays;
+
 }
 
-bool TBTimespan::operator<(const TBTimespan& other) const
+IMPLEMENT_ALL_COMPARISONS(TBTimespan, Days)
+
+/*
+	TBTimeOps
+*/
+TBTimespan TBTimeOps::TimeBetween(TBDate startDate, TBDate endDate)
 {
-	if (Past)
-	{
-		if (other.Past)
-		{
-			return TotalDays > other.TotalDays;
-		}
-		else
-		{
-			return true;
-		}
-	}
-	else
-	{
-		if (other.Past)
-		{
-			return false;
-		}
-		else
-		{
-			return TotalDays < other.TotalDays;
-		}
-	}
+	return TBTimespan(endDate.GetDays() - startDate.GetDays());
 }
 
-bool TBTimespan::operator>(const TBTimespan& other) const
+TBDate TBTimeOps::GetAdjustedDate(TBDate startDate, TBTimespan deltaTime)
 {
-	return !(*this < other) && *this != other;
-}
-
-bool TBTimespan::operator==(const TBTimespan& other) const
-{
-	return (Past == other.Past) && (TotalDays == other.TotalDays);
-}
-
-bool TBTimespan::operator!=(const TBTimespan& other) const
-{
-	return (Past != other.Past) || (TotalDays != other.TotalDays);
+	return TBDate(startDate.GetDays() + deltaTime.GetDays());
 }

@@ -7,6 +7,8 @@
 #include <QList>
 #include <QString>
 #include <QUuid>
+#include <QtGlobal>
+#include <QtDebug>
 #include "CommonTypes.h"
 
 // Virtual base class
@@ -14,10 +16,6 @@ class JsonableObject
 {
 public:
 	JsonableObject();
-	explicit JsonableObject(const QJsonObject& jsonObject);	
-	// Do not create custom json object constructors for child classes!  Overload LoadFromJson() instead!
-	// Only call the parent constructor, like "explicit Child(const QJsonObject& jsonObject) : JsonableObject(jsonObject) {}"
-	// We do still need to create these constructors for the child classes, though, in order to do stuff like emplace().
 
 	// When overriding LoadFromJson, always return LoadSuccessful.
 	virtual bool LoadFromJson(const QJsonObject& jsonObject);
@@ -96,6 +94,7 @@ T JsonableObject::JsonToVariable(const QJsonObject& jsonObject, const QString& k
 	if (jsonValue.isUndefined() || !typeCheckMethod(jsonValue))
 	{
 		LoadSuccessful = false;
+		qWarning() << QString("Error parsing value for key '%0'.").arg(key);
 		return defaultValue;
 	}
 	else
@@ -110,6 +109,7 @@ void JsonableObject::JsonArrayToList(const QJsonObject& jsonObject, const QStrin
 	QJsonValue listValue = jsonObject[key];
 	if (listValue.isUndefined() || !listValue.isArray())
 	{
+		qWarning() << QString("Error parsing array value for key '%0'.").arg(key);
 		LoadSuccessful = false;
 	}
 	else
@@ -124,6 +124,7 @@ void JsonableObject::JsonArrayToList(const QJsonObject& jsonObject, const QStrin
 			}
 			else
 			{
+				qWarning() << QString("Error parsing array element for key '%0'.").arg(key);
 				LoadSuccessful = false;
 				break;
 			}
@@ -195,6 +196,7 @@ void JsonableObject::JsonArrayToObjectList(const QJsonObject& jsonObject, const 
 	QJsonValue listValue = jsonObject[key];
 	if (listValue.isUndefined() || !listValue.isArray())
 	{
+		qWarning() << QString("Error parsing array value for key '%0'.").arg(key);
 		LoadSuccessful = false;
 	}
 	else
@@ -206,6 +208,7 @@ void JsonableObject::JsonArrayToObjectList(const QJsonObject& jsonObject, const 
 			if (arrayElem.isUndefined() || !arrayElem.isObject())
 			{
 				LoadSuccessful = false;
+				qWarning() << QString("Error parsing array element for key '%0'.").arg(key);
 				break;
 			}
 			else
@@ -213,6 +216,7 @@ void JsonableObject::JsonArrayToObjectList(const QJsonObject& jsonObject, const 
 				outList.emplaceBack(arrayElem.toObject());
 				if (!outList.back().IsValid())
 				{
+					qWarning() << QString("Error loading object within array for key '%0'.").arg(key);
 					LoadSuccessful = false;
 					break;
 				}

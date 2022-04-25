@@ -3,65 +3,66 @@
 #include "CommonTypes.h"
 #include "JsonableObject.h"
 
+// Just so I don't have to type a whole bunch of operator declarations twice.
+#define DECLARE_ONE_COMPARISON(type, operatorName) bool operatorName(const type& other) const;
+#define DECLARE_ALL_COMPARISONS(type) \
+DECLARE_ONE_COMPARISON(type, operator<) \
+DECLARE_ONE_COMPARISON(type, operator>) \
+DECLARE_ONE_COMPARISON(type, operator==) \
+DECLARE_ONE_COMPARISON(type, operator!=) \
+DECLARE_ONE_COMPARISON(type, operator>=) \
+DECLARE_ONE_COMPARISON(type, operator<=)
+
 /*
-	Generic date struct
-	Note that this contains no bounds on what values are valid, as the timeline's settings drive validity.
+	Generic date struct, only storing the number of days since the 0-day of a calendar system
 */
-class TBDate : public JsonableObject
+class TBDate
 {
+private:
+	int64 Days;
+
 public:
 	TBDate();
-	TBDate(int64 inYear, uint16 inMonth = 0, uint16 inDay = 0, uint8 inSeason = 0);
-	explicit TBDate(const QJsonObject& jsonObject) : JsonableObject(jsonObject) {}
+	TBDate(int64 inDays);
 
-	bool IsValid() const;
+	int64 GetDays() const { return Days; }
 
-	bool operator<(const TBDate& other) const;
-	bool operator>(const TBDate& other) const;
-	bool operator==(const TBDate& other) const;
-	bool operator!=(const TBDate& other) const;
-
-	virtual bool LoadFromJson(const QJsonObject& jsonObject) override;
-	virtual void PopulateJson(QJsonObject& jsonObject) const override;
-
-	int64 Year;			// Years can be negative.
-	uint16 Month;		// Being 0 means that the month is unspecified
-	uint16 Day;			// Being 0 means that the day is unspecified; ignored if Month is 0
-	uint8 Season;		// Only specified if Month is 0
-
-private:
-	bool ValidDate;
+	DECLARE_ALL_COMPARISONS(TBDate)
 };
 
 /*
-	Generic timespan struct
-	As with TBDate, timeline settings drive validity, not set bounds
+	Timespan struct, only storing the number of days it represents.
 */
-struct TBTimespan
+class TBTimespan
 {
+private:
+	int64 Days;
+
+public:
 	TBTimespan();
+	TBTimespan(int64 inDays);
 
-	int64 GetSignedTotalDays() const;
+	int64 GetDays() const { return Days; }
 
-	bool operator<(const TBTimespan& other) const;
-	bool operator>(const TBTimespan& other) const;
-	bool operator==(const TBTimespan& other) const;
-	bool operator!=(const TBTimespan& other) const;
+	DECLARE_ALL_COMPARISONS(TBTimespan)
+};
 
-	bool Past;							// Indicates whether the timespan is reversed (the dates compared were in reverse chronological order)
+/*
+	Date as broken out into individual int components; values are in ascending order (for example, day then month then year)
+*/
+typedef QList<int64> TBBrokenDate;
 
-	uint64 Years;						// Absolute value of years
-	uint16 Months;						// How many months beyond whole years
-	uint16 Days;						// How many days beyond whole months
-	uint8 Seasons;						// How many seasons beyond whole years; only used when one or both compared dates only have season-level precision
+/*
+	Timespan as broken out into individual int components; values are in ascending order (for example, days then months then years)
+*/
+typedef QList<int64> TBBrokenTimespan;
 
-	uint16 WeeksRemainingAfterYears;	// How many weeks beyond whole years
-	uint16 DaysRemainingAfterYears;		// How many days beyond whole years
-
-	uint8 WeeksRemainingAfterMonths;	// How many weeks beyond whole months
-
-	uint64 TotalMonths;					// Total months represented by the timespan, rounded down
-	uint64 TotalWeeks;					// Total weeks represented by the timespan, rounded down
-	uint64 TotalDays;					// Total days represented by the timespan
-	uint64 TotalSeasons;				// Total seasons represented by the timespan; only used when one or both compared dates only have season-level precision
+/*
+	Class with static methods for manipulating dates and timespans.
+*/
+class TBTimeOps
+{
+public:
+	static TBTimespan TimeBetween(TBDate startDate, TBDate endDate);
+	static TBDate GetAdjustedDate(TBDate startDate, TBTimespan deltaTime);
 };

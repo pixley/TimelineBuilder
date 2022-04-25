@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CommonTypes.h"
+#include "Time.h"
 #include "JsonableObject.h"
 
 struct TBTimelineSettings

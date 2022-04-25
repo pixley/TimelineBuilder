@@ -1,0 +1,5 @@
+{
+	"name": "Base Solar Calendar",
+	"description": "An example of and base implementation for a solar calendar.  This calendar has 10 months of 30 days each, six-day weeks, no year zero, negative year support.",
+	"script_name": "base_solar_cal"
+}

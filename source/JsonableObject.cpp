@@ -1,13 +1,10 @@
 #include "JsonableObject.h"
+#include <QtGlobal>
+#include <QtDebug>
 
-JsonableObject::JsonableObject() : LoadSuccessful(true)
+JsonableObject::JsonableObject() : LoadSuccessful(false)
 {
 
-}
-
-JsonableObject::JsonableObject(const QJsonObject& jsonObject)
-{
-	LoadFromJson(jsonObject);
 }
 
 bool JsonableObject::LoadFromJson(const QJsonObject& jsonObject)
@@ -21,6 +18,7 @@ void JsonableObject::JsonToObject(const QJsonObject& jsonObject, const QString& 
 	QJsonValue objectValue = jsonObject[key];
 	if (objectValue.isUndefined() || !objectValue.isObject())
 	{
+		qWarning() << QString("Error parsing object value for key '%0'.").arg(key);
 		outObject.LoadSuccessful = false;
 		LoadSuccessful = false;
 	}
@@ -29,6 +27,7 @@ void JsonableObject::JsonToObject(const QJsonObject& jsonObject, const QString& 
 		outObject.LoadFromJson(objectValue.toObject());
 		if (!outObject.IsValid())
 		{
+			qWarning() << QString("Error loading object for key '%0'.").arg(key);
 			LoadSuccessful = false;
 		}
 	}
