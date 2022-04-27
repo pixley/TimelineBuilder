@@ -2,3 +2,7 @@
 	path = extern/pybind11
 	url = ../../pybind/pybind11
 	branch = stable
+[submodule "extern/qt6"]
+	path = extern/qt6
+	url = git://code.qt.io/qt/qt5.git
+	branch = 6.2.3
