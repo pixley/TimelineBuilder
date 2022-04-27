@@ -35,8 +35,8 @@ int main(int argc, char *argv[])
 {
 	// Set the console to use UTF-8 and then allocate a buffer to allow multi-byte characters to print
 	SetConsoleOutputCP(CP_UTF8);
-	setvbuf(stdout, nullptr, _IOFBF, 1000);
-	setvbuf(stderr, nullptr, _IOFBF, 1000);
+	setvbuf(stdout, nullptr, _IOFBF, 4);
+	setvbuf(stderr, nullptr, _IOFBF, 4);
 
 	// Initialize the Qt application
 	QApplication app(argc, argv);
