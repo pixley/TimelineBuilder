@@ -1,7 +1,7 @@
 /*
 	Copyright (c) 2022 Tyler Pixley, all rights reserved.
 
-	This file (TBEvent.cpp) is part of TimelineBuilder.
+	This file (Logging.h) is part of TimelineBuilder.
 
 	TimelineBuilder is free software: you can redistribute it and/or modify it under
 	the terms of the GNU General Public License as published by the Free Software
@@ -15,24 +15,31 @@
 	TimelineBuilder. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "TBEvent.h"
+#pragma once
 
-bool TBEvent::operator<(const TBEvent& other) const
-{
-	return StartDate < other.StartDate;
-}
+#include "CommonTypes.h"
 
-bool TBEvent::operator>(const TBEvent& other) const
-{
-	return StartDate > other.StartDate;
-}
+#include <QtGlobal>
+#include <QtDebug>
+#include <QString>
 
-bool TBEvent::operator==(const TBEvent& other) const
+enum class ELogVerbosity : uint8
 {
-	return EventID == other.EventID;
-}
+	Standard,
+	Verbose,
+	VeryVerbose
+};
 
-bool TBEvent::operator!=(const TBEvent& other) const
+namespace TBLog
 {
-	return EventID != other.EventID;
+	/*
+		These logging functions encode the line parameter as UTF-8 and output them through
+		one of Qt's logging macros.  The log types have been renamed to match the Unreal
+		Engine 4/5 pattern, because I like it better that way.
+	*/
+	void Log(const QString& line, ELogVerbosity verbosity = ELogVerbosity::Standard);
+	void Debug(const QString& line);
+	void Warning(const QString& line);
+	void Error(const QString& line);
+	void Fatal(const QString& line);
 }

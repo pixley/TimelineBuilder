@@ -64,6 +64,9 @@
     <ClCompile Include="source\JsonFiles.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\Logging.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source/TBEvent.h">
@@ -99,10 +102,14 @@
     <ClInclude Include="source\JsonFiles.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="source\Logging.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="scripts\base_solar_cal.py">
       <Filter>Script Files</Filter>
     </None>
+    <None Include="TimelineBuilder.licenseheader" />
   </ItemGroup>
 </Project>

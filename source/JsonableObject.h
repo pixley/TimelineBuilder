@@ -1,3 +1,20 @@
+/*
+	Copyright (c) 2022 Tyler Pixley, all rights reserved.
+
+	This file (JsonableObject.h) is part of TimelineBuilder.
+
+	TimelineBuilder is free software: you can redistribute it and/or modify it under
+	the terms of the GNU General Public License as published by the Free Software
+	Foundation, either version 3 of the License, or (at your option) any later version.
+
+	TimelineBuilder is distributed in the hope that it will be useful, but WITHOUT ANY
+	WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+	PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License along with
+	TimelineBuilder. If not, see <https://www.gnu.org/licenses/>.
+*/
+
 #pragma once
 
 #include <functional>
@@ -10,6 +27,7 @@
 #include <QtGlobal>
 #include <QtDebug>
 #include "CommonTypes.h"
+#include "Logging.h"
 
 // Virtual base class
 class JsonableObject
@@ -94,7 +112,7 @@ T JsonableObject::JsonToVariable(const QJsonObject& jsonObject, const QString& k
 	if (jsonValue.isUndefined() || !typeCheckMethod(jsonValue))
 	{
 		LoadSuccessful = false;
-		qWarning() << QString("Error parsing value for key '%0'.").arg(key);
+		TBLog::Warning(QString("Error parsing value for key '%0'.").arg(key));
 		return defaultValue;
 	}
 	else
@@ -109,7 +127,7 @@ void JsonableObject::JsonArrayToList(const QJsonObject& jsonObject, const QStrin
 	QJsonValue listValue = jsonObject[key];
 	if (listValue.isUndefined() || !listValue.isArray())
 	{
-		qWarning() << QString("Error parsing array value for key '%0'.").arg(key);
+		TBLog::Warning(QString("Error parsing array value for key '%0'.").arg(key));
 		LoadSuccessful = false;
 	}
 	else
@@ -124,7 +142,7 @@ void JsonableObject::JsonArrayToList(const QJsonObject& jsonObject, const QStrin
 			}
 			else
 			{
-				qWarning() << QString("Error parsing array element for key '%0'.").arg(key);
+				TBLog::Warning(QString("Error parsing array element for key '%0'.").arg(key));
 				LoadSuccessful = false;
 				break;
 			}
@@ -196,7 +214,7 @@ void JsonableObject::JsonArrayToObjectList(const QJsonObject& jsonObject, const 
 	QJsonValue listValue = jsonObject[key];
 	if (listValue.isUndefined() || !listValue.isArray())
 	{
-		qWarning() << QString("Error parsing array value for key '%0'.").arg(key);
+		TBLog::Warning(QString("Error parsing array value for key '%0'.").arg(key));
 		LoadSuccessful = false;
 	}
 	else
@@ -208,7 +226,7 @@ void JsonableObject::JsonArrayToObjectList(const QJsonObject& jsonObject, const 
 			if (arrayElem.isUndefined() || !arrayElem.isObject())
 			{
 				LoadSuccessful = false;
-				qWarning() << QString("Error parsing array element for key '%0'.").arg(key);
+				TBLog::Warning(QString("Error parsing array element for key '%0'.").arg(key));
 				break;
 			}
 			else
@@ -216,7 +234,7 @@ void JsonableObject::JsonArrayToObjectList(const QJsonObject& jsonObject, const 
 				outList.emplaceBack(arrayElem.toObject());
 				if (!outList.back().IsValid())
 				{
-					qWarning() << QString("Error loading object within array for key '%0'.").arg(key);
+					TBLog::Warning(QString("Error loading object within array for key '%0'.").arg(key));
 					LoadSuccessful = false;
 					break;
 				}

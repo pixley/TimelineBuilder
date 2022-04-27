@@ -1,6 +1,21 @@
+/*
+	Copyright (c) 2022 Tyler Pixley, all rights reserved.
+
+	This file (JsonableObject.cpp) is part of TimelineBuilder.
+
+	TimelineBuilder is free software: you can redistribute it and/or modify it under
+	the terms of the GNU General Public License as published by the Free Software
+	Foundation, either version 3 of the License, or (at your option) any later version.
+
+	TimelineBuilder is distributed in the hope that it will be useful, but WITHOUT ANY
+	WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+	PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License along with
+	TimelineBuilder. If not, see <https://www.gnu.org/licenses/>.
+*/
+
 #include "JsonableObject.h"
-#include <QtGlobal>
-#include <QtDebug>
 
 JsonableObject::JsonableObject() : LoadSuccessful(false)
 {
@@ -18,7 +33,7 @@ void JsonableObject::JsonToObject(const QJsonObject& jsonObject, const QString& 
 	QJsonValue objectValue = jsonObject[key];
 	if (objectValue.isUndefined() || !objectValue.isObject())
 	{
-		qWarning() << QString("Error parsing object value for key '%0'.").arg(key);
+		TBLog::Warning(QString("Error parsing object value for key '%0'.").arg(key));
 		outObject.LoadSuccessful = false;
 		LoadSuccessful = false;
 	}
@@ -27,7 +42,7 @@ void JsonableObject::JsonToObject(const QJsonObject& jsonObject, const QString& 
 		outObject.LoadFromJson(objectValue.toObject());
 		if (!outObject.IsValid())
 		{
-			qWarning() << QString("Error loading object for key '%0'.").arg(key);
+			TBLog::Warning(QString("Error loading object for key '%0'.").arg(key));
 			LoadSuccessful = false;
 		}
 	}

@@ -1,10 +1,26 @@
+/*
+	Copyright (c) 2022 Tyler Pixley, all rights reserved.
+
+	This file (Calendar.cpp) is part of TimelineBuilder.
+
+	TimelineBuilder is free software: you can redistribute it and/or modify it under
+	the terms of the GNU General Public License as published by the Free Software
+	Foundation, either version 3 of the License, or (at your option) any later version.
+
+	TimelineBuilder is distributed in the hope that it will be useful, but WITHOUT ANY
+	WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+	PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License along with
+	TimelineBuilder. If not, see <https://www.gnu.org/licenses/>.
+*/
+
 #include "PyBind.h"		// This has to come first to not conflict with Qt defines.
 #include "Calendar.h"
+#include "Logging.h"
 
 #include <vector>
 #include <string>
-
-#include <QtGlobal>
 
 #define ScriptFunction(type, functionName, ...) \
 	CallPythonFunction<type>(*CalendarScript, functionName, __FUNCTION__, __LINE__ __VA_OPT__(,) __VA_ARGS__)
@@ -64,7 +80,7 @@ bool TBCalendarSystem::InitializeScript()
 {
 	if (ScriptName.isEmpty())
 	{
-		qWarning() << "Attempting to initialize calendar system script with an empty name!";
+		TBLog::Warning("Attempting to initialize calendar system script with an empty name!");
 		return false;
 	}
 
@@ -75,7 +91,7 @@ bool TBCalendarSystem::InitializeScript()
 	}
 	catch (py::error_already_set& pythonException)
 	{
-		qWarning("%s, line %i: Exception from module import: %s", __FUNCTION__, __LINE__, pythonException.what());
+		TBLog::Error(QString("%0, line %1: Exception from module import: %2").arg(__FUNCTION__).arg(__LINE__).arg(pythonException.what()));
 		return false;
 	}
 

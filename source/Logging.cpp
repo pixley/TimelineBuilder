@@ -1,7 +1,7 @@
 /*
 	Copyright (c) 2022 Tyler Pixley, all rights reserved.
 
-	This file (TBEvent.cpp) is part of TimelineBuilder.
+	This file (Logging.cpp) is part of TimelineBuilder.
 
 	TimelineBuilder is free software: you can redistribute it and/or modify it under
 	the terms of the GNU General Public License as published by the Free Software
@@ -15,24 +15,32 @@
 	TimelineBuilder. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "TBEvent.h"
+#include "Logging.h"
 
-bool TBEvent::operator<(const TBEvent& other) const
+namespace TBLog
 {
-	return StartDate < other.StartDate;
-}
+	void Log(const QString& line, ELogVerbosity verbosity)
+	{
 
-bool TBEvent::operator>(const TBEvent& other) const
-{
-	return StartDate > other.StartDate;
-}
+	}
 
-bool TBEvent::operator==(const TBEvent& other) const
-{
-	return EventID == other.EventID;
-}
+	void Debug(const QString& line)
+	{
+		qDebug() << line.toUtf8();
+	}
 
-bool TBEvent::operator!=(const TBEvent& other) const
-{
-	return EventID != other.EventID;
+	void Warning(const QString& line)
+	{
+		qWarning() << line.toUtf8();
+	}
+
+	void Error(const QString& line)
+	{
+		qCritical() << line.toUtf8();
+	}
+
+	void Fatal(const QString& line)
+	{
+		qFatal(line.toUtf8());
+	}
 }
