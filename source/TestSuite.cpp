@@ -55,7 +55,7 @@ bool TBTestSuite::CalendarSystemTest()
 		Pre-test initialization.
 	*/
 
-	TBLog::Log(QString("Beginning calendar system test: %0").arg(testSystem));
+	TBLog::Log("Beginning calendar system test: %0", testSystem);
 
 	QString jsonPath = QString("scripts/%0.json").arg(testSystem);
 	TBJsonFile jsonFile(jsonPath, QIODevice::ReadOnly);
@@ -71,13 +71,13 @@ bool TBTestSuite::CalendarSystemTest()
 		switch (openResult)
 		{
 		case EJsonFileResult::FileNotFound:
-			TBLog::Error(QString("Could not open calendar system file (%0).  Test aborted.").arg(jsonPath));
+			TBLog::Error("Could not open calendar system file (%0).  Test aborted.", jsonPath);
 			break;
 		case EJsonFileResult::FileNotJson:
-			TBLog::Error(QString("Calendar system file (%0) did not contain valid JSON.  Test aborted.").arg(jsonPath));
+			TBLog::Error("Calendar system file (%0) did not contain valid JSON.  Test aborted.", jsonPath);
 			break;
 		default:
-			TBLog::Error(QString("Unknown error opening the calendar system file (%s).  Test aborted.").arg(jsonPath));
+			TBLog::Error("Unknown error opening the calendar system file (%s).  Test aborted.", jsonPath);
 			break;
 		}
 
@@ -111,7 +111,7 @@ bool TBTestSuite::CalendarSystemTest()
 		uint32 testIndex = 1;
 		// Basic data checks.
 		{
-			TBLog::Log(QString("Test %0: Checking length of date format: %1").arg(testIndex++, calendarSystem.GetBrokenDateLength()));
+			TBLog::Log("Test %0: Checking length of date format: %1", testIndex++, calendarSystem.GetBrokenDateLength());
 		}
 		// Date format tests.
 		{
@@ -119,7 +119,7 @@ bool TBTestSuite::CalendarSystemTest()
 			for (int64 day : testDays)
 			{
 				QString formattedDay = calendarSystem.FormatDate(day);
-				TBLog::Log(QString("Test %0: Formatting day %1: %2").arg(testIndex++, day).arg(formattedDay));
+				TBLog::Log("Test %0: Formatting day %1: %2", testIndex++, day, formattedDay);
 			}
 		}
 		// Broken date format tests
@@ -129,12 +129,12 @@ bool TBTestSuite::CalendarSystemTest()
 			{
 				TBBrokenDate testDate(calendarSystem.GetBrokenDateLength(), testNum);
 				QString formattedDate = calendarSystem.FormatDate(testDate);
-				TBLog::Log(QString("Test %0: Formatting date of all '%1': %2").arg(testIndex++, testNum).arg(formattedDate));
+				TBLog::Log("Test %0: Formatting date of all '%1': %2", testIndex++, testNum, formattedDate);
 
 				// Now test the corresponding date with negative year (or equivalent)
 				testDate.last() *= -1;
 				formattedDate = calendarSystem.FormatDate(testDate);
-				TBLog::Log(QString("Test %0: Formatting date of all '%1' with negative year (or equivalent): %2").arg(testIndex++, testNum).arg(formattedDate));
+				TBLog::Log("Test %0: Formatting date of all '%1' with negative year (or equivalent): %2", testIndex++, testNum, formattedDate);
 			}
 		}
 		// Date span format tests
@@ -151,7 +151,7 @@ bool TBTestSuite::CalendarSystemTest()
 					}
 
 					QString formattedSpan = calendarSystem.FormatDateSpan(testDays[indexOne], testDays[indexTwo]);
-					TBLog::Log(QString("Test %0: Formatting span between day %1 and day %2 : %3").arg(testIndex++, testDays[indexOne], testDays[indexTwo]).arg(formattedSpan));
+					TBLog::Log("Test %0: Formatting span between day %1 and day %2 : %3", testIndex++, testDays[indexOne], testDays[indexTwo], formattedSpan);
 				}
 			}
 		}
@@ -164,11 +164,11 @@ bool TBTestSuite::CalendarSystemTest()
 				if (calendarSystem.ValidateBrokenDate(testDate))
 				{
 					TBDate combinedDate = calendarSystem.CombineDate(testDate);
-					TBLog::Log(QString("Test %0: Date of all '%1' is day %2").arg(testIndex++, testNum, combinedDate.GetDays()));
+					TBLog::Log("Test %0: Date of all '%1' is day %2", testIndex++, testNum, combinedDate.GetDays());
 				}
 				else
 				{
-					TBLog::Log(QString("Test %0: Date of all '%1' was invalid and could not be combined.").arg(testIndex++, testNum));
+					TBLog::Log("Test %0: Date of all '%1' was invalid and could not be combined.", testIndex++, testNum);
 				}
 
 				// Now test the corresponding date with negative year (or equivalent)
@@ -176,11 +176,11 @@ bool TBTestSuite::CalendarSystemTest()
 				if (calendarSystem.ValidateBrokenDate(testDate))
 				{
 					TBDate combinedDate = calendarSystem.CombineDate(testDate);
-					TBLog::Log(QString("Test %0: Date of all '%1' with negative year is day %2").arg(testIndex++, testNum, combinedDate.GetDays()));
+					TBLog::Log("Test %0: Date of all '%1' with negative year is day %2", testIndex++, testNum, combinedDate.GetDays());
 				}
 				else
 				{
-					TBLog::Log(QString("Test %0: Date of all '%1' with negative year was invalid and could not be combined.").arg(testIndex++, testNum));
+					TBLog::Log("Test %0: Date of all '%1' with negative year was invalid and could not be combined.", testIndex++, testNum);
 				}
 			}
 		}
@@ -191,12 +191,12 @@ bool TBTestSuite::CalendarSystemTest()
 			{
 				TBBrokenTimespan testSpan(calendarSystem.GetBrokenDateLength(), testNum);
 				TBDate newDate = calendarSystem.MoveDate(baseDate, testSpan);
-				TBLog::Log(QString("Test %0: Offsetting day %1 by span of all '%2': %3").arg(testIndex++, baseDate.GetDays(), testNum, newDate.GetDays()));
+				TBLog::Log("Test %0: Offsetting day %1 by span of all '%2': %3", testIndex++, baseDate.GetDays(), testNum, newDate.GetDays());
 
 				// Now test the corresponding negative offset
 				TBBrokenTimespan negSpan(calendarSystem.GetBrokenDateLength(), -testNum);
 				newDate = calendarSystem.MoveDate(baseDate, negSpan);
-				TBLog::Log(QString("Test %0: Offsetting day %1 by span of all '-%2': %3").arg(testIndex++, baseDate.GetDays(), testNum, newDate.GetDays()));
+				TBLog::Log("Test %0: Offsetting day %1 by span of all '-%2': %3", testIndex++, baseDate.GetDays(), testNum, newDate.GetDays());
 			}
 		}
 	}

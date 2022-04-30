@@ -37,7 +37,7 @@ T CallPythonFunction(py::module_& pythonModule, const char* functionName, const 
 	}
 	catch (py::error_already_set& pythonException)
 	{
-		TBLog::Error(QString("Exception when calling Python function '%0' from %1 (Line %2): %3").arg(functionName, callingFunction).arg(callingLine).arg(pythonException.what()));
+		TBLog::Error("Exception when calling Python function '%0' from %1 (Line %2): %3", functionName, callingFunction, callingLine, pythonException.what());
 		// Throw again so that this can be handled at a higher level if necessary.
 		throw pythonException;
 	}
@@ -52,7 +52,7 @@ void CallVoidPythonFunction(py::module_& pythonModule, const char* functionName,
 	}
 	catch (py::error_already_set& pythonException)
 	{
-		TBLog::Error(QString("Exception when calling Python function '%0' from %1 (Line %2): %3").arg(functionName, callingFunction).arg(callingLine).arg(pythonException.what()));
+		TBLog::Error("Exception when calling Python function '%0' from %1 (Line %2): %3", functionName, callingFunction, callingLine, pythonException.what());
 		// Throw again so that this can be handled at a higher level if necessary.
 		throw pythonException;
 	}

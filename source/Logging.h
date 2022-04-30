@@ -20,26 +20,81 @@
 #include "CommonTypes.h"
 
 #include <QtGlobal>
-#include <QtDebug>
 #include <QString>
 
-enum class ELogVerbosity : uint8
-{
-	Standard,
-	Verbose,
-	VeryVerbose
-};
+#include <utility>
+#include <type_traits>
 
-namespace TBLog
+
+// Note that in the 2-or-more arguments case of this function, we have to convert the arguments
+// to QStrings, because the variadic overload of QString::arg() only accepts types that are
+// implicitly convertable to QString, which does not include number types.
+#define IMPLEMENT_LOG(LogFunctionName, QLogMacro) \
+template<typename... Args> \
+static void LogFunctionName(const char * line, Args&&... args) \
+{ \
+	LogFunctionName(QString(line), std::forward<Args>(args)...); \
+} \
+template<typename... Args> \
+static void LogFunctionName(const QString& line, Args&&... args) \
+{ \
+	if constexpr (sizeof...(Args) == 0) \
+	{ \
+		QLogMacro(line.toUtf8()); \
+	} \
+	else if constexpr (sizeof...(Args) == 1) \
+	{ \
+		QLogMacro(line.arg(args...).toUtf8()); \
+	} \
+	else \
+	{ \
+		QLogMacro(line.arg(ToString<Args>(std::forward<Args>(args))...).toUtf8()); \
+	} \
+}
+
+// Thank you, C++20, for making the template specialization not frustrating
+template<typename T>
+concept NumberType = std::is_arithmetic_v<std::remove_reference_t<T>>;
+
+template<typename T>
+concept StringType = std::is_same_v<std::remove_reference_t<std::remove_cv_t<T>>, QString>;
+
+class TBLog
 {
+public:
 	/*
 		These logging functions encode the line parameter as UTF-8 and output them through
 		one of Qt's logging macros.  The log types have been renamed to match the Unreal
 		Engine 4/5 pattern, because I like it better that way.
 	*/
-	void Log(const QString& line, ELogVerbosity verbosity = ELogVerbosity::Standard);
-	void Debug(const QString& line);
-	void Warning(const QString& line);
-	void Error(const QString& line);
-	void Fatal(const QString& line);
-}
+
+	// void Log(const QString& line, Args&&... args)
+	IMPLEMENT_LOG(Log, qInfo)
+	// void Debug(const QString& line, Args&&... args)
+	IMPLEMENT_LOG(Debug, qDebug)
+	// void Warning(const QString& line, Args&&... args)
+	IMPLEMENT_LOG(Warning, qWarning)
+	// void Error(const QString& line, Args&&... args)
+	IMPLEMENT_LOG(Error, qCritical)
+	// void Fatal(const QString& line, Args&&... args)
+	IMPLEMENT_LOG(Fatal, qFatal)
+
+private:
+	template<typename T>
+	static QString ToString(const T& input)
+	{
+		return QString(input);
+	}
+
+	template<StringType T>
+	static QString ToString(const T& input)
+	{
+		return input;
+	}
+
+	template<NumberType T>
+	static QString ToString(const T input)
+	{
+		return QString::number(input);
+	}
+};

@@ -38,7 +38,7 @@ TBJsonFile::TBJsonFile(const QString& filePath, QIODeviceBase::OpenMode openMode
 		if (jsonDoc.isNull())
 		{
 			result = EJsonFileResult::FileNotJson;
-			TBLog::Warning(QString("Error parsing JSON file %0: %1").arg(filePath, error.errorString()));
+			TBLog::Warning("Error parsing JSON file %0: %1", filePath, error.errorString());
 		}
 		else
 		{

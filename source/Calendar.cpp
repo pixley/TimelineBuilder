@@ -91,7 +91,7 @@ bool TBCalendarSystem::InitializeScript()
 	}
 	catch (py::error_already_set& pythonException)
 	{
-		TBLog::Error(QString("%0, line %1: Exception from module import: %2").arg(__FUNCTION__).arg(__LINE__).arg(pythonException.what()));
+		TBLog::Error("%0, line %1: Exception from module import: %2", __FUNCTION__, __LINE__, pythonException.what());
 		return false;
 	}
 

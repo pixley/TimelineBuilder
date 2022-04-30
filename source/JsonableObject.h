@@ -112,7 +112,7 @@ T JsonableObject::JsonToVariable(const QJsonObject& jsonObject, const QString& k
 	if (jsonValue.isUndefined() || !typeCheckMethod(jsonValue))
 	{
 		LoadSuccessful = false;
-		TBLog::Warning(QString("Error parsing value for key '%0'.").arg(key));
+		TBLog::Warning("Error parsing value for key '%0'.", key);
 		return defaultValue;
 	}
 	else
@@ -127,7 +127,7 @@ void JsonableObject::JsonArrayToList(const QJsonObject& jsonObject, const QStrin
 	QJsonValue listValue = jsonObject[key];
 	if (listValue.isUndefined() || !listValue.isArray())
 	{
-		TBLog::Warning(QString("Error parsing array value for key '%0'.").arg(key));
+		TBLog::Warning("Error parsing array value for key '%0'.", key);
 		LoadSuccessful = false;
 	}
 	else
@@ -142,7 +142,7 @@ void JsonableObject::JsonArrayToList(const QJsonObject& jsonObject, const QStrin
 			}
 			else
 			{
-				TBLog::Warning(QString("Error parsing array element for key '%0'.").arg(key));
+				TBLog::Warning("Error parsing array element for key '%0'.", key);
 				LoadSuccessful = false;
 				break;
 			}
@@ -214,7 +214,7 @@ void JsonableObject::JsonArrayToObjectList(const QJsonObject& jsonObject, const 
 	QJsonValue listValue = jsonObject[key];
 	if (listValue.isUndefined() || !listValue.isArray())
 	{
-		TBLog::Warning(QString("Error parsing array value for key '%0'.").arg(key));
+		TBLog::Warning("Error parsing array value for key '%0'.", key);
 		LoadSuccessful = false;
 	}
 	else
@@ -226,7 +226,7 @@ void JsonableObject::JsonArrayToObjectList(const QJsonObject& jsonObject, const 
 			if (arrayElem.isUndefined() || !arrayElem.isObject())
 			{
 				LoadSuccessful = false;
-				TBLog::Warning(QString("Error parsing array element for key '%0'.").arg(key));
+				TBLog::Warning("Error parsing array element for key '%0'.", key);
 				break;
 			}
 			else
@@ -234,7 +234,7 @@ void JsonableObject::JsonArrayToObjectList(const QJsonObject& jsonObject, const 
 				outList.emplaceBack(arrayElem.toObject());
 				if (!outList.back().IsValid())
 				{
-					TBLog::Warning(QString("Error loading object within array for key '%0'.").arg(key));
+					TBLog::Warning("Error loading object within array for key '%0'.", key);
 					LoadSuccessful = false;
 					break;
 				}

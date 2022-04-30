@@ -19,6 +19,8 @@
 #include "pybind11/embed.h"
 #include "Version.h"
 #include "TimelineBuilder.h"
+#include "Logging.h"
+#include "TestSuite.h"
 
 #include <QtWidgets/QApplication>
 #include <QtGlobal>
@@ -26,8 +28,6 @@
 
 #include <iostream>
 #include <Windows.h>
-
-#include "TestSuite.h"
 
 namespace py = pybind11;
 
@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
 	QApplication app(argc, argv);
 	QApplication::setApplicationName("TimelineBuilder");
 	QApplication::setApplicationDisplayName("TimelineBuilder");
-	QApplication::setApplicationVersion(QString("%0.%1.%2").arg(MAJOR_VERSION).arg(MINOR_VERSION).arg(PATCH_VERSION));
+	QApplication::setApplicationVersion(QString("%0.%1.%2").arg(MAJOR_VERSION, MINOR_VERSION, PATCH_VERSION));
 	QApplication::setOrganizationName("Tyler Pixley");
 	QApplication::setOrganizationDomain("https://pixley.github.io");
 
@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
 	}
 	catch (py::error_already_set& pythonException)
 	{
-		qCritical() << QString("Error in Python sys module!  %0  Aborting...").arg(pythonException.what());
+		TBLog::Error("Error in Python sys module!  %0  Aborting...", pythonException.what());
 		return -1;
 	}
 

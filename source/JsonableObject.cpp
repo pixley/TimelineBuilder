@@ -33,7 +33,7 @@ void JsonableObject::JsonToObject(const QJsonObject& jsonObject, const QString& 
 	QJsonValue objectValue = jsonObject[key];
 	if (objectValue.isUndefined() || !objectValue.isObject())
 	{
-		TBLog::Warning(QString("Error parsing object value for key '%0'.").arg(key));
+		TBLog::Warning("Error parsing object value for key '%0'.", key);
 		outObject.LoadSuccessful = false;
 		LoadSuccessful = false;
 	}
@@ -42,7 +42,7 @@ void JsonableObject::JsonToObject(const QJsonObject& jsonObject, const QString& 
 		outObject.LoadFromJson(objectValue.toObject());
 		if (!outObject.IsValid())
 		{
-			TBLog::Warning(QString("Error loading object for key '%0'.").arg(key));
+			TBLog::Warning("Error loading object for key '%0'.", key);
 			LoadSuccessful = false;
 		}
 	}

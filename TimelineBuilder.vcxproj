@@ -112,7 +112,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="source\JsonFiles.cpp" />
-    <ClCompile Include="source\Logging.cpp" />
     <ClCompile Include="source\TestSuite.cpp" />
     <QtRcc Include="TimelineBuilder.qrc" />
     <QtUic Include="TimelineBuilder.ui" />
