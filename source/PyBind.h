@@ -18,12 +18,14 @@
 #pragma once
 
 #include "pybind11/pybind11.h"
+#include "pybind11/stl.h"
 
 #include "Logging.h"
 
 #include <QString>
 
 #include <utility>
+#include <stdexcept>
 
 namespace py = pybind11;
 
@@ -41,6 +43,11 @@ T CallPythonFunction(py::module_& pythonModule, const char* functionName, const 
 		// Throw again so that this can be handled at a higher level if necessary.
 		throw pythonException;
 	}
+	catch (std::runtime_error& otherException)
+	{
+		TBLog::Error("Exception inside pybind11 from %0 (Line %1): %2", callingFunction, callingLine, otherException.what());
+		throw otherException;
+	}
 }
 
 template<typename... Args>
@@ -55,5 +62,10 @@ void CallVoidPythonFunction(py::module_& pythonModule, const char* functionName,
 		TBLog::Error("Exception when calling Python function '%0' from %1 (Line %2): %3", functionName, callingFunction, callingLine, pythonException.what());
 		// Throw again so that this can be handled at a higher level if necessary.
 		throw pythonException;
+	}
+	catch (std::runtime_error& otherException)
+	{
+		TBLog::Error("Exception inside pybind11 from %0 (Line %1): %2", callingFunction, callingLine, otherException.what());
+		throw otherException;
 	}
 }

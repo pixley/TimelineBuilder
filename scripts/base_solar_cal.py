@@ -55,7 +55,7 @@ class BaseSolarCal:
         return 1
 
     def validate_date(self, in_date: list[int]) -> bool:
-        return in_date.count() == 3 and in_date[0] > 0 and in_date[0] <= 30 and in_date[1] > 0 and in_date[1] <= 10 and in_date[2] != 0
+        return len(in_date) == 3 and in_date[0] > 0 and in_date[0] <= 30 and in_date[1] > 0 and in_date[1] <= 10 and in_date[2] != 0
 
 active_calendar = None
 

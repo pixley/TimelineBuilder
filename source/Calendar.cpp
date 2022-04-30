@@ -116,7 +116,7 @@ QString TBCalendarSystem::FormatDate(const TBBrokenDate& date) const
 
 QString TBCalendarSystem::FormatDateSpan(TBDate startDate, TBDate endDate) const
 {
-	return ScriptFunction(std::string, "format_broken_date", startDate.GetDays(), endDate.GetDays()).data();
+	return ScriptFunction(std::string, "format_date_span", startDate.GetDays(), endDate.GetDays()).data();
 }
 
 QString TBCalendarSystem::FormatTimespan(const TBBrokenTimespan& span) const
@@ -146,7 +146,7 @@ TBDate TBCalendarSystem::CombineDate(const TBBrokenDate& brokenDate) const
 TBDate TBCalendarSystem::MoveDate(TBDate startDate, const TBBrokenTimespan& deltaTime) const
 {
 	std::vector<int64> deltaVector(deltaTime.begin(), deltaTime.end());
-	return TBDate(ScriptFunction(int64, "combine_date", startDate.GetDays(), deltaVector));
+	return TBDate(ScriptFunction(int64, "move_date", startDate.GetDays(), deltaVector));
 }
 
 bool TBCalendarSystem::ValidateBrokenDate(const TBBrokenDate& brokenDate) const
