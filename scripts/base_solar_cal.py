@@ -15,86 +15,107 @@
 # TimelineBuilder. If not, see <https://www.gnu.org/licenses/>.
 # ===================
 
-class BaseSolarCal:
-    def __init__(self):
-        self.month_names = ["Onemonth", "Twomonth", "Threemonth", "Fourmonth", "Fivemonth",
-                            "Sixmonth", "Sevenmonth", "Eightmonth", "Ninemonth", "Tenmonth"]
-        self.weekdays = ["Oneday", "Twoday", "Threeday", "Fourday", "Fiveday", "Sixday"]
-
-    def get_broken_date_length(self) -> int:
-        return 3
-
-    def get_date_format(self) -> str:
-        return "%2 %1 %0"
-
-    def get_timespan_format(self) -> str:
-        return "%0 years %1 months %2 days"
-
-    def format_date(self, in_date: int) -> str:
-        return "Oneday, 1 Onemonth 1"
-
-    def format_broken_date(self, in_date: list[int]) -> str:
-        return "Oneday, 1 Onemonth 1"
-
-    def format_date_span(self, start_date: int, end_date: int) -> str:
-        return "1 day"
-
-    def format_timespan(self, in_span: list[int]) -> str:
-        return "1 day"
-
-    def break_date(self, in_date: int) -> list[int]:
-        return [1, 1, 1]
-
-    def break_date_span(self, start_date: int, end_date: int) -> list[int]:
-        return [1, 0, 0]
-
-    def combine_date(self, in_date: list[int]) -> int:
-        return 1
-
-    def move_date(self, start_date: int, delta_span: list[int]) -> int:
-        return 1
-
-    def validate_date(self, in_date: list[int]) -> bool:
-        return len(in_date) == 3 and in_date[0] > 0 and in_date[0] <= 30 and in_date[1] > 0 and in_date[1] <= 10 and in_date[2] != 0
-
-active_calendar = None
+# ===================
+# Implementing a simple solar calendar with 6-day weeks, 30-day months, and 10-month years.
+# Day 0 corresponds to the date "Oneday, 1 Onemonth 1", where dates are formatted "D Month Y".
+# Year 1 is directly preceded by Year -1, so there is no "Year 0".
+# ===================
+month_names = ["Onemonth", "Twomonth", "Threemonth", "Fourmonth", "Fivemonth",
+                "Sixmonth", "Sevenmonth", "Eightmonth", "Ninemonth", "Tenmonth"]
+weekdays = ["Oneday", "Twoday", "Threeday", "Fourday", "Fiveday", "Sixday"]
 
 def init_calendar():
-    global active_calendar
-    active_calendar = BaseSolarCal()
+    return
+
+def get_day_of_week(in_date: int) -> str:
+    # Python modulo doesn't require compensating for negative numerators in this case.
+    # Day -1 is a Sixday
+    return weekdays[in_date % 6]
 
 def get_broken_date_length() -> int:
-    return active_calendar.get_broken_date_length()
+    # Broken dates represent a day, month, and year
+    return 3
 
 def get_date_format() -> str:
-    return active_calendar.get_date_format()
+    return "%2 %1 %0"
 
 def get_timespan_format() -> str:
-    return active_calendar.get_timespan_format()
+    return "%0 years %1 months %2 days"
 
 def format_date(in_date: int) -> str:
-    return active_calendar.format_date(in_date)
+    return format_broken_date_impl(in_date, break_date(in_date))
 
 def format_broken_date(in_date: list[int]) -> str:
-    return active_calendar.format_broken_date(in_date)
+    return format_broken_date_impl(combine_date(in_date), in_date)
+
+def format_broken_date_impl(in_date: int, in_broken_date: list[int]):
+    if not validate_date(in_broken_date):
+        raise RuntimeError("Invalid date!")
+
+    day_of_week: str = get_day_of_week(in_date)
+    month: str = month_names[in_broken_date[1] - 1]
+    return "{weekday}, {day} {month} {year}".format(weekday = day_of_week, day = in_broken_date[0], month = month, year = in_broken_date[2])
 
 def format_date_span(start_date: int, end_date: int) -> str:
-    return active_calendar.format_date_span(start_date, end_date)
+    return format_timespan(break_date_span(start_date, end_date))
 
 def format_timespan(in_span: list[int]) -> str:
-    return active_calendar.format_timespan(in_span)
+    if len(in_span) != 3:
+        raise RuntimeError("Invalid timespan!")
+
+    has_years: bool = in_span[2] != 0
+    has_months: bool = in_span[1] != 0
+    has_days: bool = in_span[0] != 0
+
+    year_str: str = ""
+    if has_years:
+        if in_span[2] == 1:
+            year_str = "1 year"
+        else:
+            year_str = "{num} years".format(num = in_span[2])
+
+        if has_months or has_days:
+            year_str = year_str + ", "
+    
+    month_str: str = ""
+    if has_months:
+        if in_span[1] == 1:
+            month_str = "1 month"
+        else:
+            month_str = "{num} months".format(num = in_span[1])
+
+        if has_days:
+            month_str = month_str + ", "
+
+    day_str: str = ""
+    if has_days:
+        if in_span[0] == 1:
+            day_str = "1 day"
+        else:
+            day_str = "{num} days".format(num = in_span[0])
+
+    return year_str + month_str + day_str
 
 def break_date(in_date: int) -> list[int]:
-    return active_calendar.break_date(in_date)
+    if in_date >= 0:
+        return [in_date % 30 + 1, (in_date // 30) % 10 + 1, in_date // 300 + 1]
+    else:
+        return [in_date % 30 + 1, (in_date // 30) % 10 + 1, in_date // 300]
 
 def break_date_span(start_date: int, end_date: int) -> list[int]:
-    return active_calendar.break_date_span(start_date, end_date)
+    return [1, 1, 1]
 
 def combine_date(in_date: list[int]) -> int:
-    return active_calendar.combine_date(in_date)
+    if not validate_date(in_date):
+        raise RuntimeError("Invalid date!")
+
+    if in_date[2] > 0:
+        return (in_date[2] - 1) * 300 + (in_date[1] - 1) * 30 + in_date[0] - 1
+    else:
+        return -1 * ((abs(in_date[2]) - 1) * 300 + (10 - in_date[1]) * 30 + (30 - in_date[0])) - 1
 
 def move_date(start_date: int, delta_span: list[int]) -> int:
-    return active_calendar.move_date(start_date, delta_span)
+    return start_date + delta_span[2] * 300 + delta_span[1] * 30 + delta_span[0]
 
 def validate_date(in_date: list[int]) -> bool:
-    return active_calendar.validate_date(in_date)
+    return len(in_date) == get_broken_date_length() and in_date[0] > 0 and in_date[0] <= 30 and in_date[1] > 0 and in_date[1] <= 10 and in_date[2] != 0
