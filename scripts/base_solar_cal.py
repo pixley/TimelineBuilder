@@ -103,7 +103,20 @@ def break_date(in_date: int) -> list[int]:
         return [in_date % 30 + 1, (in_date // 30) % 10 + 1, in_date // 300]
 
 def break_date_span(start_date: int, end_date: int) -> list[int]:
-    return [1, 1, 1]
+    broken_start: list[int] = break_date(start_date)
+    broken_end: list[int] = break_date(end_date)
+
+    date_diff: list[int] = [end - start for start, end in zip(broken_start, broken_end)]
+
+    # Move any extra (or negative) days to the month
+    date_diff[1] = date_diff[1] + (date_diff[0] // 30)
+    date_diff[0] = date_diff[0] % 30
+
+    # Move any extra (or negative) months to the year
+    date_diff[2] = date_diff[2] + (date_diff[1] // 10)
+    date_diff[1] = date_diff[1] % 10
+
+    return date_diff
 
 def combine_date(in_date: list[int]) -> int:
     if not validate_date(in_date):
