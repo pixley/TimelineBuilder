@@ -25,23 +25,28 @@
 class TBEvent : public JsonableObject
 {
 public:
+	TBEvent();
+
+	virtual bool LoadFromJson(const QJsonObject& jsonObject) override;
+	virtual void PopulateJson(QJsonObject& jsonObject) const override;
+
 	// Sorting
-	bool operator<(const TBEvent& other) const;
-	bool operator>(const TBEvent& other) const;
 	bool operator==(const TBEvent& other) const;
 	bool operator!=(const TBEvent& other) const;
 
 private:
 	// Member variables
-	QString EventName;
-	QString EventDescription;
-	bool HasStartDate;
-	bool HasEndDate;
-	TBDate StartDate;
-	TBDate EndDate;
+	QString Name;
+	QString Description;
+	TBPeriodBounds BoundsType;
+	TBBrokenDate StartDate;
+	TBBrokenDate EndDate;
 	TBSignificance Significance;
-
 	QUuid EventID;
-	QUuid ParentEventID;
+
+	// Can be null UUID if no parent event
+	QUuid ParentID;
+
+	// For events that have imprecise dates
 	QList<QUuid> PrerequisiteEvents;
 };

@@ -59,16 +59,3 @@ TBTimespan::TBTimespan(int64 inDays) : Days(inDays)
 }
 
 IMPLEMENT_ALL_COMPARISONS(TBTimespan, Days)
-
-/*
-	TBTimeOps
-*/
-TBTimespan TBTimeOps::TimeBetween(TBDate startDate, TBDate endDate)
-{
-	return TBTimespan(endDate.GetDays() - startDate.GetDays());
-}
-
-TBDate TBTimeOps::GetAdjustedDate(TBDate startDate, TBTimespan deltaTime)
-{
-	return TBDate(startDate.GetDays() + deltaTime.GetDays());
-}

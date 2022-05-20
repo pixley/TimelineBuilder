@@ -16,3 +16,32 @@
 */
 
 #pragma once
+
+#include "JsonableObject.h"
+#include "CommonTypes.h"
+#include "Time.h"
+#include <QUuid>
+
+class TBEra : public JsonableObject
+{
+public:
+	TBEra();
+
+	virtual bool LoadFromJson(const QJsonObject& jsonObject) override;
+	virtual void PopulateJson(QJsonObject& jsonObject) const override;
+
+private:
+	// Member variables
+	QString Name;
+	QString Description;
+	TBPeriodBounds BoundsType;
+
+	// The start and end dates are in the base calendar system for the timeline
+	TBBrokenDate StartDate;
+	TBBrokenDate EndDate;
+
+	// Null UUID if we don't override the base calendar system for the timeline
+	QUuid CalendarOverride;
+
+	QUuid EraID;
+};

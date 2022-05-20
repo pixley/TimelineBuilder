@@ -18,7 +18,12 @@
 #pragma once
 
 #include "CommonTypes.h"
-#include "JsonableObject.h"
+
+// Aliases so that A) this doesn't have to be done a bunch of places, and B) people don't have to remember
+// that TBBrokenDate is a QList<int64> all the time.
+// Please remember to include "JsonableObject.h" when using these.
+#define JsonArrayToBrokenDate JsonArrayToInt64List
+#define BrokenDateToJsonArray(parentObject, key, inDate) ListToJsonArray(parentObject, key, inDate)
 
 // Just so I don't have to type a whole bunch of operator declarations twice.
 #define DECLARE_ONE_COMPARISON(type, operatorName) bool operatorName(const type& other) const;
@@ -65,21 +70,19 @@ public:
 };
 
 /*
-	Date as broken out into individual int components; values are in ascending order (for example, day then month then year)
+	Date as broken out into individual int components; values are in descending order (for example, year then month then day)
 */
 typedef QList<int64> TBBrokenDate;
 
 /*
-	Timespan as broken out into individual int components; values are in ascending order (for example, days then months then years)
+	Timespan as broken out into individual int components; values are in descending order (for example, years then months then days)
 */
 typedef QList<int64> TBBrokenTimespan;
 
-/*
-	Class with static methods for manipulating dates and timespans.
-*/
-class TBTimeOps
-{
-public:
-	static TBTimespan TimeBetween(TBDate startDate, TBDate endDate);
-	static TBDate GetAdjustedDate(TBDate startDate, TBTimespan deltaTime);
-};
+// Defines how events/eras durations are bounded
+ENUM_CLASS(TBPeriodBounds, uint8,
+	NoDuration,
+	StartOnly,
+	EndOnly,
+	StartAndEnd
+)

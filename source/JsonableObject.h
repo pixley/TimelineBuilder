@@ -18,6 +18,7 @@
 #pragma once
 
 #include <functional>
+#include <type_traits>
 
 #include <QJsonObject>
 #include <QJsonArray>
@@ -26,6 +27,7 @@
 #include <QUuid>
 #include <QtGlobal>
 #include <QtDebug>
+
 #include "CommonTypes.h"
 #include "Logging.h"
 
@@ -70,9 +72,11 @@ protected:
 	static int64 EnumToJson(E enumValue);
 
 	// Static methods to convert QLists to QJsonArrays
-	// For types that have direct conversions to QJsonValue, only the ListElemType needs to be specified
-	template<typename ListElemType, typename ArrayElemType = ListElemType, typename ConversionMethod = std::function<void> >
-	static void ListToJsonArray(QJsonObject& parentObject, const QString& key, const QList<ListElemType>& inList, ConversionMethod converter = nullptr);
+	// For types that have direct conversions to QJsonValue, use the first overload of ListToJsonArray()
+	template<typename ElemType>
+	static void ListToJsonArray(QJsonObject& parentObject, const QString& key, const QList<ElemType>& inList);
+	template<typename ListElemType, typename ArrayElemType, typename ConversionMethod = std::function<ArrayElemType(const ListElemType&)>>
+	static void ListToJsonArray(QJsonObject& parentObject, const QString& key, const QList<ListElemType>& inList, ConversionMethod converter);
 	template<typename T>
 	static void ObjectListToJsonArray(QJsonObject& parentObject, const QString& key, const QList<T>& inList);
 };
@@ -257,24 +261,32 @@ int64 JsonableObject::EnumToJson(E enumValue)
 	List-to-JsonArray methods and alias macros
 */
 
-// For use with types that have direct QJsonValue conversions or have custom conversions as listed in the macros below.
+// For use with types that have direct QJsonValue conversions
+template<typename ElemType>
+void JsonableObject::ListToJsonArray(QJsonObject& parentObject, const QString& key, const QList<ElemType>& inList)
+{
+	// QJsonArray does not have a reserve/preallocate method.  Otherwise, I would put one here.
+	QJsonArray outArray;
+	for (const ElemType& element : inList)
+	{
+		outArray.push_back(element);
+	}
+
+	parentObject.insert(key, outArray);
+}
+
+// For use with that have custom conversions, such as listed in the macros below.
 template<typename ListElemType, typename ArrayElemType, typename ConversionMethod>
 void JsonableObject::ListToJsonArray(QJsonObject& parentObject, const QString& key, const QList<ListElemType>& inList, ConversionMethod converter)
 {
+	// Make sure that we have a valid converter at compile time.
+	static_assert(!std::is_null_pointer_v<ConversionMethod>);
+
 	// QJsonArray does not have a reserve/preallocate method.  Otherwise, I would put one here.
 	QJsonArray outArray;
 	for (const ListElemType& element : inList)
 	{
-		ArrayElemType convertedElement;
-		if (converter == nullptr)
-		{
-			convertedElement = converter(element);
-		}
-		else
-		{
-			convertedElement = element;
-		}
-
+		ArrayElemType convertedElement = converter(element);
 		outArray.push_back(convertedElement);
 	}
 
@@ -282,10 +294,10 @@ void JsonableObject::ListToJsonArray(QJsonObject& parentObject, const QString& k
 }
 
 // Aliases for JsonableObject::ListToJsonArray for types that need conversion.
-#define UuidListToJsonArray(inList, outArray) \
-	ListToJsonArray<QUuid, QString, std::function<QString(QUuid)> >(inList, outArray, &JsonableObject::UuidToJson)
-#define EnumListToJsonArray(inList, outArray, enumType) \
-	ListToJsonArray<enumType, int64, std::function<int64(enumType)> >(inList, outArray, &JsonableObject::EnumToJson<enumType>)
+#define UuidListToJsonArray(jsonObject, key, inList) \
+	ListToJsonArray<QUuid, QString, std::function<QString(QUuid)> >(jsonObject, key, inList, &JsonableObject::UuidToJson)
+#define EnumListToJsonArray(jsonObject, key, inList, enumType) \
+	ListToJsonArray<enumType, int64, std::function<int64(enumType)> >(jsonObject, key, inList, &JsonableObject::EnumToJson<enumType>)
 
 // Use only with vectors of pointers to JsonableObject-inheriting objects.
 template<typename T>
