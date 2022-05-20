@@ -19,6 +19,8 @@
 
 #include "CommonTypes.h"
 
+#include <QList>
+
 // Aliases so that A) this doesn't have to be done a bunch of places, and B) people don't have to remember
 // that TBBrokenDate is a QList<int64> all the time.
 // Please remember to include "JsonableObject.h" when using these.

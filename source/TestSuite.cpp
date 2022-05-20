@@ -112,15 +112,17 @@ bool TBTestSuite::CalendarSystemTest()
 	try
 	{
 		uint32 testIndex = 1;
+		uint32 maxBrokenDateLength = 0;
 		// Basic data checks.
 		{
 			try
 			{
-				TBLog::Log("Test %0: Checking length of date format: %1", testIndex++, calendarSystem.GetBrokenDateLength());
+				maxBrokenDateLength = calendarSystem.GetBrokenDateLength();
+				TBLog::Log("Test %0: Checking length of date format: %1", testIndex++, maxBrokenDateLength);
 			}
 			catch (py::error_already_set& pythonException)
 			{
-				TBLog::Warning("Exception thrown in Test %0!  Test failed!", testIndex);
+				TBLog::Warning("Exception thrown in Test %0 (Broken Date Length)!", testIndex++);
 			}
 		}
 		// Date format tests.
@@ -135,7 +137,7 @@ bool TBTestSuite::CalendarSystemTest()
 				}
 				catch (py::error_already_set& pythonException)
 				{
-					TBLog::Warning("Exception thrown in Test %0!  Test failed!", testIndex++);
+					TBLog::Warning("Exception thrown in Test %0 (Date Format)!", testIndex++);
 				}
 			}
 		}
@@ -144,45 +146,49 @@ bool TBTestSuite::CalendarSystemTest()
 			// Test dates of the form "i/i/i" and "i/i/-i" for i [0,20]
 			for (int32 testNum = 0; testNum <= 20; testNum++)
 			{
-				TBBrokenDate testDate(calendarSystem.GetBrokenDateLength(), testNum);
-				QString formattedDate = "";
+				for (int32 testLen = 1; testLen <= maxBrokenDateLength; testLen++)
+				{
+					TBBrokenDate testDate(testLen, testNum);
+					QString formattedDate = "";
 
-				if (calendarSystem.ValidateBrokenDate(testDate)) {
-					try
-					{
-						formattedDate = calendarSystem.FormatDate(testDate);
-						TBLog::Log("Test %0: Formatting date of all '%1': %2", testIndex++, testNum, formattedDate);
+					if (calendarSystem.ValidateBrokenDate(testDate)) {
+						try
+						{
+							formattedDate = calendarSystem.FormatDate(testDate);
+							TBLog::Log("Test %0: Formatting date of %3 '%1's: %2", testIndex++, testNum, formattedDate, testLen);
+						}
+						catch (py::error_already_set& pythonException)
+						{
+							TBLog::Warning("Exception thrown in Test %0 (Broken Date Format)!", testIndex++);
+						}
 					}
-					catch (py::error_already_set& pythonException)
+					else
 					{
-						TBLog::Warning("Exception thrown in Test %0!  Test failed!", testIndex++);
+						TBLog::Log("Test %0: Date of %2 '%1's is invalid and could not be formatted.", testIndex++, testNum, testLen);
 					}
-				}
-				else
-				{
-					TBLog::Log("Test %0: Date of all '%1' is invalid and could not be formatted.", testIndex++, testNum);
-				}
 
-				// Now test the corresponding date with negative year (or equivalent)
-				if (testNum == 0)
-				{
-					continue;
-				}
-				testDate.last() *= -1;
-				if (calendarSystem.ValidateBrokenDate(testDate)) {
-					try
+					// Now test the corresponding date with negative year (or equivalent)
+					if (testNum == 0)
 					{
-						formattedDate = calendarSystem.FormatDate(testDate);
-						TBLog::Log("Test %0: Formatting date of all '%1' with negative year (or equivalent): %2", testIndex++, testNum, formattedDate);
+						// No negative zero
+						continue;
 					}
-					catch (py::error_already_set& pythonException)
+					testDate.first() *= -1;
+					if (calendarSystem.ValidateBrokenDate(testDate)) {
+						try
+						{
+							formattedDate = calendarSystem.FormatDate(testDate);
+							TBLog::Log("Test %0: Formatting date of %3 '%1's with negative year (or equivalent): %2", testIndex++, testNum, formattedDate, testLen);
+						}
+						catch (py::error_already_set& pythonException)
+						{
+							TBLog::Warning("Exception thrown in Test %0 (Broken Date Format)!", testIndex++);
+						}
+					}
+					else
 					{
-						TBLog::Warning("Exception thrown in Test %0!  Test failed!", testIndex++);
+						TBLog::Log("Test %0: Date of all %2 '%1's with negative year (or equivalent) is invalid and could not be formatted.", testIndex++, testNum, testLen);
 					}
-				}
-				else
-				{
-					TBLog::Log("Test %0: Date of all '%1' with negative year (or equivalent) is invalid and could not be formatted.", testIndex++, testNum);
 				}
 			}
 		}
@@ -206,7 +212,7 @@ bool TBTestSuite::CalendarSystemTest()
 					}
 					catch (py::error_already_set& pythonException)
 					{
-						TBLog::Warning("Exception thrown in Test %0!  Test failed!", testIndex++);
+						TBLog::Warning("Exception thrown in Test %0 (Date Span Format)!", testIndex++);
 					}
 				}
 			}
@@ -216,45 +222,49 @@ bool TBTestSuite::CalendarSystemTest()
 			// Test dates of the form "i/i/i" for i [0,20]
 			for (int32 testNum = 0; testNum <= 20; testNum++)
 			{
-				TBBrokenDate testDate(calendarSystem.GetBrokenDateLength(), testNum);
-				try
+				for (int32 testLen = 1; testLen <= maxBrokenDateLength; testLen++)
 				{
-					if (calendarSystem.ValidateBrokenDate(testDate))
+					TBBrokenDate testDate(testLen, testNum);
+					try
 					{
-						TBDate combinedDate = calendarSystem.CombineDate(testDate);
-						TBLog::Log("Test %0: Date of all '%1' is day %2", testIndex++, testNum, combinedDate.GetDays());
+						if (calendarSystem.ValidateBrokenDate(testDate))
+						{
+							TBDate combinedDate = calendarSystem.CombineDate(testDate);
+							TBLog::Log("Test %0: Date of %3 '%1's is day %2", testIndex++, testNum, combinedDate.GetDays(), testLen);
+						}
+						else
+						{
+							TBLog::Log("Test %0: Date of %2 '%1's was invalid and could not be combined.", testIndex++, testNum, testLen);
+						}
 					}
-					else
+					catch (py::error_already_set& pythonException)
 					{
-						TBLog::Log("Test %0: Date of all '%1' was invalid and could not be combined.", testIndex++, testNum);
+						TBLog::Warning("Exception thrown in Test %0 (Date Combination)!", testIndex++);
 					}
-				}
-				catch (py::error_already_set& pythonException)
-				{
-					TBLog::Warning("Exception thrown in Test %0!  Test failed!", testIndex++);
-				}
 
-				// Now test the corresponding date with negative year (or equivalent)
-				if (testNum == 0)
-				{
-					continue;
-				}
-				try
-				{
-					testDate.last() *= -1;
-					if (calendarSystem.ValidateBrokenDate(testDate))
+					// Now test the corresponding date with negative year (or equivalent)
+					if (testNum == 0)
 					{
-						TBDate combinedDate = calendarSystem.CombineDate(testDate);
-						TBLog::Log("Test %0: Date of all '%1' with negative year is day %2", testIndex++, testNum, combinedDate.GetDays());
+						// No negative zero
+						continue;
 					}
-					else
+					try
 					{
-						TBLog::Log("Test %0: Date of all '%1' with negative year was invalid and could not be combined.", testIndex++, testNum);
+						testDate.first() *= -1;
+						if (calendarSystem.ValidateBrokenDate(testDate))
+						{
+							TBDate combinedDate = calendarSystem.CombineDate(testDate);
+							TBLog::Log("Test %0: Date of %3 '%1's with negative year is day %2", testIndex++, testNum, combinedDate.GetDays(), testLen);
+						}
+						else
+						{
+							TBLog::Log("Test %0: Date of %2 '%1's with negative year was invalid and could not be combined.", testIndex++, testNum, testLen);
+						}
 					}
-				}
-				catch (py::error_already_set& pythonException)
-				{
-					TBLog::Warning("Exception thrown in Test %0!  Test failed!", testIndex++);
+					catch (py::error_already_set& pythonException)
+					{
+						TBLog::Warning("Exception thrown in Test %0 (Date Combination)!", testIndex++);
+					}
 				}
 			}
 		}
@@ -263,28 +273,36 @@ bool TBTestSuite::CalendarSystemTest()
 			TBDate baseDate(1 << 17);
 			for (int32 testNum = 0; testNum <= 20; testNum++)
 			{
-				TBDate newDate(0);
-				try
+				for (int32 testLen = 1; testLen <= maxBrokenDateLength; testLen++)
 				{
-					TBBrokenTimespan testSpan(calendarSystem.GetBrokenDateLength(), testNum);
-					newDate = calendarSystem.MoveDate(baseDate, testSpan);
-					TBLog::Log("Test %0: Offsetting day %1 by span of all '%2': %3", testIndex++, baseDate.GetDays(), testNum, newDate.GetDays());
-				}
-				catch (py::error_already_set& pythonException)
-				{
-					TBLog::Warning("Exception thrown in Test %0!  Test failed!", testIndex++);
-				}
+					TBDate newDate(0);
+					try
+					{
+						TBBrokenTimespan testSpan(testLen, testNum);
+						newDate = calendarSystem.MoveDate(baseDate, testSpan);
+						TBLog::Log("Test %0: Offsetting day %1 by span of %4 '%2's: %3", testIndex++, baseDate.GetDays(), testNum, newDate.GetDays(), testLen);
+					}
+					catch (py::error_already_set& pythonException)
+					{
+						TBLog::Warning("Exception thrown in Test %0 (Date Movement)!", testIndex++);
+					}
 
-				// Now test the corresponding negative offset
-				try
-				{
-					TBBrokenTimespan negSpan(calendarSystem.GetBrokenDateLength(), -testNum);
-					newDate = calendarSystem.MoveDate(baseDate, negSpan);
-					TBLog::Log("Test %0: Offsetting day %1 by span of all '-%2': %3", testIndex++, baseDate.GetDays(), testNum, newDate.GetDays());
-				}
-				catch (py::error_already_set& pythonException)
-				{
-					TBLog::Warning("Exception thrown in Test %0!  Test failed!", testIndex++);
+					// Now test the corresponding negative offset
+					if (testNum == 0)
+					{
+						// No negative zero
+						continue;
+					}
+					try
+					{
+						TBBrokenTimespan negSpan(testLen, -testNum);
+						newDate = calendarSystem.MoveDate(baseDate, negSpan);
+						TBLog::Log("Test %0: Offsetting day %1 by span of %4 '-%2's: %3", testIndex++, baseDate.GetDays(), testNum, newDate.GetDays(), testLen);
+					}
+					catch (py::error_already_set& pythonException)
+					{
+						TBLog::Warning("Exception thrown in Test %0 (Date Movement)!", testIndex++);
+					}
 				}
 			}
 		}
