@@ -23,6 +23,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QList>
+#include <QMap>
 #include <QString>
 #include <QUuid>
 #include <QtGlobal>
@@ -79,6 +80,11 @@ protected:
 	static void ListToJsonArray(QJsonObject& parentObject, const QString& key, const QList<ListElemType>& inList, ConversionMethod converter);
 	template<typename T>
 	static void ObjectListToJsonArray(QJsonObject& parentObject, const QString& key, const QList<T>& inList);
+
+	// Static methods to convert QMaps to QJsonObjects
+	// ====================
+	// START HERE NEXT TIME
+	// ====================
 };
 
 /*
