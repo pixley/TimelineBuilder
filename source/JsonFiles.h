@@ -19,8 +19,8 @@
 
 #include "CommonTypes.h"
 
-#include <QFile>
-#include <QJsonDocument>
+#include <QtCore/QFile>
+#include <QtCore/QJsonDocument>
 
 enum class EJsonFileResult : uint8
 {

@@ -18,7 +18,7 @@
 #include "JsonFiles.h"
 #include "Logging.h"
 
-#include <QByteArray>
+#include <QtCore/QByteArray>
 
 TBJsonFile::TBJsonFile() : file(), jsonDoc(), result(EJsonFileResult::NoFileSpecified)
 {

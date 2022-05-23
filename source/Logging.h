@@ -19,8 +19,8 @@
 
 #include "CommonTypes.h"
 
-#include <QtGlobal>
-#include <QString>
+#include <QtCore/QtGlobal>
+#include <QtCore/QString>
 
 #include <utility>
 #include <type_traits>

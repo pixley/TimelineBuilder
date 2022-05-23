@@ -20,7 +20,7 @@
 #include "JsonableObject.h"
 #include "CommonTypes.h"
 #include "Time.h"
-#include <QUuid>
+#include <QtCore/QUuid>
 
 class TBEvent : public JsonableObject
 {

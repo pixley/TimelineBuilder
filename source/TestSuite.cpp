@@ -24,7 +24,7 @@
 #include "Calendar.h"
 #include "Logging.h"
 
-#include <QJsonDocument>
+#include <QtCore/QJsonDocument>
 
 TBTestSuite::TBTestSuite(const QCoreApplication& app) :
 	Parser(),

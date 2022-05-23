@@ -21,8 +21,8 @@
 #include "JsonableObject.h"
 #include "Time.h"
 
-#include <QString>
-#include <QList>
+#include <QtCore/QString>
+#include <QtCore/QList>
 
 // Forward-declaring
 namespace pybind11

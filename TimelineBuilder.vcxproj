@@ -22,20 +22,22 @@
     <ConfigurationType>Application</ConfigurationType>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
+    <SpectreMitigation>false</SpectreMitigation>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
+    <SpectreMitigation>false</SpectreMitigation>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt_defaults.props')">
     <Import Project="$(QtMsBuild)\qt_defaults.props" />
   </ImportGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
-    <QtInstall>$(SolutionDir)$(Platform)\extern\qt6</QtInstall>
+    <QtInstall>$(SolutionDir)$(Platform)\$(Configuration)\extern\qt6</QtInstall>
     <QtModules>core;gui;widgets;svg</QtModules>
-    <QtBuildConfig>release</QtBuildConfig>
+    <QtBuildConfig>$(Configuration)</QtBuildConfig>
     <QtQMakeTemplate>vcapp</QtQMakeTemplate>
     <QMakeExtraArgs>
     </QMakeExtraArgs>
@@ -43,9 +45,9 @@
     </QMakeCodeLines>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
-    <QtInstall>$(SolutionDir)$(Platform)\extern\qt6</QtInstall>
+    <QtInstall>$(SolutionDir)$(Platform)\$(Configuration)\extern\qt6</QtInstall>
     <QtModules>core;gui;widgets;svg</QtModules>
-    <QtBuildConfig>release</QtBuildConfig>
+    <QtBuildConfig>$(Configuration)</QtBuildConfig>
     <QtQMakeTemplate>vcapp</QtQMakeTemplate>
     <QMakeExtraArgs>
     </QMakeExtraArgs>
@@ -72,30 +74,32 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(Qt_INCLUDEPATH_);$(LOCALAPPDATA)\Programs\Python\Python39\include;extern\pybind11\include\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(SolutionDir)$(Platform)\$(Configuration)\extern\qt6\include;$(LOCALAPPDATA)\Programs\Python\Python39\include;$(SolutionDir)extern\pybind11\include\</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
+      <IntelJCCErratum>false</IntelJCCErratum>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(LOCALAPPDATA)\Programs\Python\Python39\libs;$(SolutionDir)$(Platform)extern/qt6/lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>%(AdditionalDependencies);$(Qt_LIBS_);python39.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(LOCALAPPDATA)\Programs\Python\Python39\libs;$(SolutionDir)$(Platform)/$(Configuration)/extern/qt6/lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies);python39.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(Qt_INCLUDEPATH_);$(LOCALAPPDATA)\Programs\Python\Python39\include;extern\pybind11\include\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(SolutionDir)$(Platform)\$(Configuration)\extern\qt6\include;$(LOCALAPPDATA)\Programs\Python\Python39\include;$(SolutionDir)extern\pybind11\include\</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
+      <IntelJCCErratum>false</IntelJCCErratum>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(LOCALAPPDATA)\Programs\Python\Python39\libs;$(SolutionDir)$(Platform)extern/qt6/lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>%(AdditionalDependencies);$(Qt_LIBS_);python39.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(LOCALAPPDATA)\Programs\Python\Python39\libs;$(SolutionDir)$(Platform)/$(Configuration)/extern/qt6/lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies);python39.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">

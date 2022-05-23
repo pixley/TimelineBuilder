@@ -20,14 +20,14 @@
 #include <functional>
 #include <type_traits>
 
-#include <QJsonObject>
-#include <QJsonArray>
-#include <QList>
-#include <QMap>
-#include <QString>
-#include <QUuid>
-#include <QtGlobal>
-#include <QtDebug>
+#include <QtCore/QJsonObject>
+#include <QtCore/QJsonArray>
+#include <QtCore/QList>
+#include <QtCore/QMap>
+#include <QtCore/QString>
+#include <QtCore/QUuid>
+#include <QtCore/QtGlobal>
+#include <QtCore/QtDebug>
 
 #include "CommonTypes.h"
 #include "Logging.h"

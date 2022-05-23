@@ -22,7 +22,7 @@
 
 #include "Logging.h"
 
-#include <QString>
+#include <QtCore/QString>
 
 #include <utility>
 #include <stdexcept>

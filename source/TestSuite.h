@@ -17,9 +17,9 @@
 
 #pragma once
 
-#include <QCommandLineParser>
-#include <QCommandLineOption>
-#include <QCoreApplication>
+#include <QtCore/QCommandLineParser>
+#include <QtCore/QCommandLineOption>
+#include <QtCore/QCoreApplication>
 
 class TBTestSuite
 {

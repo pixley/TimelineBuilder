@@ -23,8 +23,8 @@
 #include "TestSuite.h"
 
 #include <QtWidgets/QApplication>
-#include <QtGlobal>
-#include <QtDebug>
+#include <QtCore/QtGlobal>
+#include <QtCore/QtDebug>
 
 #include <iostream>
 #include <Windows.h>
