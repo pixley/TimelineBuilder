@@ -55,6 +55,9 @@ protected:
 	T JsonToVariable(const QJsonObject& jsonObject, const QString& key, TypeCheckMethodRef typeCheckMethod, GetMethodRef getMethod, T defaultValue);
 	template<typename T, typename TypeCheckMethodRef, typename GetMethodRef>
 	void JsonArrayToList(const QJsonObject& jsonObject, const QString& key, QList<T>& outList, TypeCheckMethodRef typeCheckMethod, GetMethodRef getMethod);
+	template<typename ValueType, MapType<QString, ValueType> T, typename TypeCheckMethodRef, typename GetMethodRef>
+	void JsonObjectToMap(const QJsonObject& jsonObject, const QString& key, T& outMap,
+		TypeCheckMethodRef typeCheckMethod, GetMethodRef getMethod);
 	template<typename KeyType, typename ValueType, MapType<KeyType, ValueType> T, typename TypeCheckMethodRef,
 		typename GetMethodRef, typename KeyConversionMethod = std::function<KeyType(const QString&)>>
 	void JsonObjectToMap(const QJsonObject& jsonObject, const QString& key, T& outMap, TypeCheckMethodRef typeCheckMethod,
@@ -64,6 +67,8 @@ protected:
 	void JsonToObject(const QJsonObject& jsonObject, const QString& key, JsonableObject& outObject);
 	template<JsonableType T>
 	void JsonArrayToObjectList(const QJsonObject& jsonObject, const QString& key, QList<T>& outList);
+	template<JsonableType ObjectType, MapType<QString, ObjectType> T>
+	void JsonObjectToObjectMap(const QJsonObject& jsonObject, const QString& key, T& outMap);
 	template<typename KeyType, JsonableType ObjectType, MapType<KeyType, ObjectType> T,
 		typename KeyConversionMethod = std::function<KeyType(const QString&)>>
 	void JsonObjectToObjectMap(const QJsonObject& jsonObject, const QString& key, T& outMap, KeyConversionMethod keyConverter);
@@ -92,7 +97,7 @@ protected:
 	static void ObjectListToJsonArray(QJsonObject& parentObject, const QString& key, const QList<T>& inList);
 
 	// Static methods to convert QMaps/QHashes to QJsonObjects
-	template<typename KeyType, typename ValueType, MapType<KeyType, ValueType> T>
+	template<typename ValueType, MapType<QString, ValueType> T>
 	static void MapToJsonObject(QJsonObject& parentObject, const QString& key, const T& inMap);
 
 	template<typename KeyType, typename ValueType, MapType<KeyType, ValueType> T, typename ObjectKeyType,
@@ -100,7 +105,7 @@ protected:
 		requires (!std::is_same_v<KeyType, ObjectKeyType>)
 	static void MapToJsonObject(QJsonObject& parentObject, const QString& key, const T& inMap, KeyConversionMethod keyConverter);
 
-	template<typename KeyType, typename ValueType, MapType<KeyType, ValueType> T, typename ObjectValueType,
+	template<typename ValueType, MapType<QString, ValueType> T, typename ObjectValueType,
 		typename ValueConversionMethod = std::function<ObjectValueType(const ValueType&)>>
 		requires (!std::is_same_v<ValueType, ObjectValueType>)
 	static void MapToJsonObject(QJsonObject& parentObject, const QString& key, const T& inMap, ValueConversionMethod valueConverter);
@@ -113,7 +118,7 @@ protected:
 	static void MapToJsonObject(QJsonObject& parentObject, const QString& key, const T& inMap,
 		KeyConversionMethod keyConverter, ValueConversionMethod valueConverter);
 
-	template<typename KeyType, JsonableType ValueType, MapType<KeyType, ValueType> T>
+	template<JsonableType ValueType, MapType<QString, ValueType> T>
 	static void ObjectMapToJsonObject(QJsonObject& parentObject, const QString& key, const T& inMap);
 
 	template<typename KeyType, JsonableType ValueType, MapType<KeyType, ValueType> T, typename ObjectKeyType,

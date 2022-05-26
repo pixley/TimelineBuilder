@@ -126,6 +126,43 @@ void JsonableObject::JsonArrayToList(const QJsonObject& jsonObject, const QStrin
 	}
 }
 
+template<typename ValueType, MapType<QString, ValueType> T, typename TypeCheckMethodRef, typename GetMethodRef>
+	void JsonableObject::JsonObjectToMap(const QJsonObject& jsonObject, const QString& key, T& outMap,
+		TypeCheckMethodRef typeCheckMethod, GetMethodRef getMethod)
+{
+	if (!jsonObject.contains(key))
+	{
+		LoadSuccessful = false;
+		TBLog::Warning("No value for key '%0'", key);
+	}
+
+	QJsonValue mapValue = jsonObject[key];
+	if (mapValue.isUndefined() || !mapValue.isObject())
+	{
+		TBLog::Warning("Error parsing map value for key '%0'", key);
+		LoadSuccessful = false;
+	}
+	else
+	{
+		QJsonObject mapObject = mapValue.toObject();
+		outMap.reserve(mapObject.length);
+		for (QJsonObject::ConstIterator keyValPair : outMap)
+		{
+			const QJsonValue& value = keyValPair.value;
+			if (!value.isUndefined() && typeCheckMethod(value))
+			{
+				outMap.emplace(keyValPair.key, getMethod(value));
+			}
+			else
+			{
+				TBLog::Warning("Error parsing map element for key '%0'", key);
+				LoadSuccessful = false;
+				break;
+			}
+		}
+	}
+}
+
 template<typename KeyType, typename ValueType, MapType<KeyType, ValueType> T, typename TypeCheckMethodRef,
 	typename GetMethodRef, typename KeyConversionMethod>
 void JsonableObject::JsonObjectToMap(const QJsonObject& jsonObject, const QString& key, T& outMap,
@@ -206,9 +243,53 @@ void JsonableObject::JsonArrayToObjectList(const QJsonObject& jsonObject, const 
 	}
 }
 
-template<typename KeyType, JsonableType ObjectType, MapType<KeyType, ObjectType> T, typename KeyConversionType>
+template<JsonableType ObjectType, MapType<QString, ObjectType> T>
+void JsonableObject::JsonObjectToObjectMap(const QJsonObject& jsonObject, const QString& key, T& outMap)
+{
+	if (!jsonObject.contains(key))
+	{
+		LoadSuccessful = false;
+		TBLog::Warning("No value for key '%0'", key);
+	}
+
+	QJsonValue mapValue = jsonObject[key];
+	if (mapValue.isUndefined() || !mapValue.isObject())
+	{
+		TBLog::Warning("Error parsing map value for key '%0'", key);
+		LoadSuccessful = false;
+	}
+	else
+	{
+		QJsonObject mapObject = mapValue.toObject();
+		outMap.reserve(mapObject.length);
+		for (QJsonObject::ConstIterator keyValPair : outMap)
+		{
+			const QJsonValue& value = keyValPair.value;
+			if (!value.isUndefined() && value.isObject())
+			{
+				outMap.emplace(keyValPair.key);
+				ObjectType& newObject = outMap[keyValPair.key];
+				newObject.LoadFromJson(value.toObject());
+				if (!newObject.IsValid())
+				{
+					TBLog::Warning("Error loading object within map for key '%0'.", key);
+					LoadSuccessful = false;
+					break;
+				}
+			}
+			else
+			{
+				TBLog::Warning("Error parsing map element for key '%0'", key);
+				LoadSuccessful = false;
+				break;
+			}
+		}
+	}
+}
+
+template<typename KeyType, JsonableType ObjectType, MapType<KeyType, ObjectType> T, typename KeyConversionMethod>
 void JsonableObject::JsonObjectToObjectMap(const QJsonObject& jsonObject, const QString& key, T& outMap,
-	KeyConversionType keyConverter)
+	KeyConversionMethod keyConverter)
 {
 	if (!jsonObject.contains(key))
 	{
@@ -310,7 +391,7 @@ void JsonableObject::ObjectListToJsonArray(QJsonObject& parentObject, const QStr
 	parentObject.insert(key, outArray);
 }
 
-template<typename KeyType, typename ValueType, MapType<KeyType, ValueType> T>
+template<typename ValueType, MapType<QString, ValueType> T>
 void JsonableObject::MapToJsonObject(QJsonObject& parentObject, const QString& key, const T& inMap)
 {
 	QJsonObject outObject;
@@ -335,7 +416,7 @@ void JsonableObject::MapToJsonObject(QJsonObject& parentObject, const QString& k
 	parentObject.insert(key, outObject);
 }
 
-template<typename KeyType, typename ValueType, MapType<KeyType, ValueType> T, typename ObjectValueType, typename ValueConversionMethod>
+template<typename ValueType, MapType<QString, ValueType> T, typename ObjectValueType, typename ValueConversionMethod>
 	requires (!std::is_same_v<ValueType, ObjectValueType>)
 void JsonableObject::MapToJsonObject(QJsonObject& parentObject, const QString& key, const T& inMap, ValueConversionMethod valueConverter)
 {
@@ -363,7 +444,7 @@ void JsonableObject::MapToJsonObject(QJsonObject& parentObject, const QString& k
 	parentObject.insert(key, outObject);
 }
 
-template<typename KeyType, JsonableType ValueType, MapType<KeyType, ValueType> T>
+template<JsonableType ValueType, MapType<QString, ValueType> T>
 void JsonableObject::ObjectMapToJsonObject(QJsonObject& parentObject, const QString& key, const T& inMap)
 {
 	QJsonObject outObject;
