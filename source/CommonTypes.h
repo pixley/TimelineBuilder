@@ -32,6 +32,12 @@ typedef float float32;
 typedef double float64;
 
 /*
+	Project-wide selection as to what the default map container should be
+*/
+#define TBMap QHash
+//#define TBMap QMap
+
+/*
 	Boundary values
 
 	An IEEE-754 double-precision mantissa is 52 bits, meaning that it is possible for a float64 to represent numbers up to 2^53

@@ -1,4 +1,4 @@
-﻿extensions: .cpp .h
+﻿extensions: .cpp .h .inl
 /*
 	Copyright (c) 2022 Tyler Pixley, all rights reserved.
 

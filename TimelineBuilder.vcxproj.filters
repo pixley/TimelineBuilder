@@ -105,11 +105,17 @@
     <ClInclude Include="source\Logging.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="source\CommonConcepts.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="scripts\base_solar_cal.py">
       <Filter>Script Files</Filter>
     </None>
     <None Include="TimelineBuilder.licenseheader" />
+    <None Include="source\JsonableObject.inl">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

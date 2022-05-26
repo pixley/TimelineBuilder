@@ -18,12 +18,12 @@
 #pragma once
 
 #include "CommonTypes.h"
+#include "CommonConcepts.h"
 
 #include <QtCore/QtGlobal>
 #include <QtCore/QString>
 
 #include <utility>
-#include <type_traits>
 
 
 // Note that in the 2-or-more arguments case of this function, we have to convert the arguments
@@ -51,13 +51,6 @@ static void LogFunctionName(const QString& line, Args&&... args) \
 		QLogMacro(line.arg(ToString<Args>(std::forward<Args>(args))...).toUtf8()); \
 	} \
 }
-
-// Thank you, C++20, for making the template specialization not frustrating
-template<typename T>
-concept NumberType = std::is_arithmetic_v<std::remove_reference_t<T>>;
-
-template<typename T>
-concept StringType = std::is_same_v<std::remove_reference_t<std::remove_cv_t<T>>, QString>;
 
 class TBLog
 {

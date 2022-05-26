@@ -152,6 +152,7 @@
     <ClInclude Include="source/TBEvent.h" />
     <ClInclude Include="source/TBTimeline.h" />
     <ClInclude Include="source/Time.h" />
+    <ClInclude Include="source\CommonConcepts.h" />
     <ClInclude Include="source\JsonFiles.h" />
     <ClInclude Include="source\Logging.h" />
     <ClInclude Include="source\TestSuite.h" />
@@ -159,6 +160,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="scripts\base_solar_cal.py" />
+    <None Include="source\JsonableObject.inl" />
     <None Include="TimelineBuilder.licenseheader" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

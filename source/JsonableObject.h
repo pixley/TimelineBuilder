@@ -19,17 +19,20 @@
 
 #include <functional>
 #include <type_traits>
+#include <utility>
 
 #include <QtCore/QJsonObject>
 #include <QtCore/QJsonArray>
 #include <QtCore/QList>
 #include <QtCore/QMap>
+#include <QtCore/QHash>
 #include <QtCore/QString>
 #include <QtCore/QUuid>
 #include <QtCore/QtGlobal>
 #include <QtCore/QtDebug>
 
 #include "CommonTypes.h"
+#include "CommonConcepts.h"
 #include "Logging.h"
 
 // Virtual base class
@@ -52,11 +55,18 @@ protected:
 	T JsonToVariable(const QJsonObject& jsonObject, const QString& key, TypeCheckMethodRef typeCheckMethod, GetMethodRef getMethod, T defaultValue);
 	template<typename T, typename TypeCheckMethodRef, typename GetMethodRef>
 	void JsonArrayToList(const QJsonObject& jsonObject, const QString& key, QList<T>& outList, TypeCheckMethodRef typeCheckMethod, GetMethodRef getMethod);
+	template<typename KeyType, typename ValueType, MapType<KeyType, ValueType> T, typename TypeCheckMethodRef,
+		typename GetMethodRef, typename KeyConversionMethod = std::function<KeyType(const QString&)>>
+	void JsonObjectToMap(const QJsonObject& jsonObject, const QString& key, T& outMap, TypeCheckMethodRef typeCheckMethod,
+		GetMethodRef getMethod, KeyConversionMethod keyConverter);
 
 	// Specific implementations for objects, which don't fit the standard scheme.
 	void JsonToObject(const QJsonObject& jsonObject, const QString& key, JsonableObject& outObject);
-	template<typename T>
+	template<JsonableType T>
 	void JsonArrayToObjectList(const QJsonObject& jsonObject, const QString& key, QList<T>& outList);
+	template<typename KeyType, JsonableType ObjectType, MapType<KeyType, ObjectType> T,
+		typename KeyConversionMethod = std::function<KeyType(const QString&)>>
+	void JsonObjectToObjectMap(const QJsonObject& jsonObject, const QString& key, T& outMap, KeyConversionMethod keyConverter);
 
 	// Static methods to help specific conversions from JSON
 	static bool IsUuid(const QJsonValue& jsonValue);
@@ -78,106 +88,43 @@ protected:
 	static void ListToJsonArray(QJsonObject& parentObject, const QString& key, const QList<ElemType>& inList);
 	template<typename ListElemType, typename ArrayElemType, typename ConversionMethod = std::function<ArrayElemType(const ListElemType&)>>
 	static void ListToJsonArray(QJsonObject& parentObject, const QString& key, const QList<ListElemType>& inList, ConversionMethod converter);
-	template<typename T>
+	template<JsonableType T>
 	static void ObjectListToJsonArray(QJsonObject& parentObject, const QString& key, const QList<T>& inList);
 
-	// Static methods to convert QMaps to QJsonObjects
-	// ====================
-	// START HERE NEXT TIME
-	// ====================
+	// Static methods to convert QMaps/QHashes to QJsonObjects
+	template<typename KeyType, typename ValueType, MapType<KeyType, ValueType> T>
+	static void MapToJsonObject(QJsonObject& parentObject, const QString& key, const T& inMap);
+
+	template<typename KeyType, typename ValueType, MapType<KeyType, ValueType> T, typename ObjectKeyType,
+		typename KeyConversionMethod = std::function<ObjectKeyType(const KeyType&)>>
+		requires (!std::is_same_v<KeyType, ObjectKeyType>)
+	static void MapToJsonObject(QJsonObject& parentObject, const QString& key, const T& inMap, KeyConversionMethod keyConverter);
+
+	template<typename KeyType, typename ValueType, MapType<KeyType, ValueType> T, typename ObjectValueType,
+		typename ValueConversionMethod = std::function<ObjectValueType(const ValueType&)>>
+		requires (!std::is_same_v<ValueType, ObjectValueType>)
+	static void MapToJsonObject(QJsonObject& parentObject, const QString& key, const T& inMap, ValueConversionMethod valueConverter);
+	
+	template<typename KeyType, typename ValueType, MapType<KeyType, ValueType> T,
+		typename ObjectKeyType, typename ObjectValueType,
+		typename KeyConversionMethod = std::function<ObjectKeyType(const KeyType&)>,
+		typename ValueConversionMethod = std::function<ObjectValueType(const ValueType&)>>
+		requires (!std::is_same_v<KeyType, ObjectKeyType> && !std::is_same_v<ValueType, ObjectValueType>)
+	static void MapToJsonObject(QJsonObject& parentObject, const QString& key, const T& inMap,
+		KeyConversionMethod keyConverter, ValueConversionMethod valueConverter);
+
+	template<typename KeyType, JsonableType ValueType, MapType<KeyType, ValueType> T>
+	static void ObjectMapToJsonObject(QJsonObject& parentObject, const QString& key, const T& inMap);
+
+	template<typename KeyType, JsonableType ValueType, MapType<KeyType, ValueType> T, typename ObjectKeyType,
+		typename KeyConversionMethod = std::function<ObjectKeyType(const KeyType&)>>
+		requires (!std::is_same_v<KeyType, ObjectKeyType>)
+	static void ObjectMapToJsonObject(QJsonObject& parentObject, const QString& key, const T& inMap, KeyConversionMethod keyConverter);
 };
 
-/*
-	Templated type-check and get-from-JSON methods
-*/
-template<typename E>
-bool JsonableObject::IsEnum(const QJsonValue& jsonValue)
-{
-	if (jsonValue.isDouble())
-	{
-		E castEnum = static_cast<E>(jsonValue.toInteger());
-		if (EnumValueIsValid<E>(castEnum))
-		{
-			return true;
-		}
-	}
-
-	return false;
-}
-
-template<typename E>
-E JsonableObject::GetEnum(const QJsonValue& jsonValue)
-{
-	return static_cast<E>(jsonValue.toInteger());
-}
-
-/*
-	From-JSON conversion methods and alias macros
-*/
-// TypeCheckMethodRef and GetMethodRef should be function references/pointers, such as std::function<>, as shown below
-template<typename T, typename TypeCheckMethodRef, typename GetMethodRef>
-T JsonableObject::JsonToVariable(const QJsonObject& jsonObject, const QString& key, TypeCheckMethodRef typeCheckMethod, GetMethodRef getMethod, T defaultValue)
-{
-	QJsonValue jsonValue = jsonObject[key];
-	if (jsonValue.isUndefined() || !typeCheckMethod(jsonValue))
-	{
-		LoadSuccessful = false;
-		TBLog::Warning("Error parsing value for key '%0'.", key);
-		return defaultValue;
-	}
-	else
-	{
-		return getMethod(jsonValue);
-	}
-}
-
-template<typename T, typename TypeCheckMethodRef, typename GetMethodRef>
-void JsonableObject::JsonArrayToList(const QJsonObject& jsonObject, const QString& key, QList<T>& outList, TypeCheckMethodRef typeCheckMethod, GetMethodRef getMethod)
-{
-	QJsonValue listValue = jsonObject[key];
-	if (listValue.isUndefined() || !listValue.isArray())
-	{
-		TBLog::Warning("Error parsing array value for key '%0'.", key);
-		LoadSuccessful = false;
-	}
-	else
-	{
-		QJsonArray jsonArray = listValue.toArray();
-		outList.reserve(jsonArray.count());
-		for (const QJsonValue& arrayElem : jsonArray)
-		{
-			if (!arrayElem.isUndefined() && typeCheckMethod(arrayElem))
-			{
-				outList.emplaceBack(getMethod(arrayElem));
-			}
-			else
-			{
-				TBLog::Warning("Error parsing array element for key '%0'.", key);
-				LoadSuccessful = false;
-				break;
-			}
-		}
-	}
-}
-
-// Types for references to the various typecheck and get methods of QJsonValues or other functions with "const QJsonValue&" as their sole param
-typedef std::function<bool(const QJsonValue&)> IsTypeRef;
-#define DECLARE_JSON_GET_REF_TYPE(type, typeSubstring) \
-typedef std::function<type(const QJsonValue&)> Get##typeSubstring##Ref;
-
-DECLARE_JSON_GET_REF_TYPE(bool, Bool)
-DECLARE_JSON_GET_REF_TYPE(float64, Double)
-DECLARE_JSON_GET_REF_TYPE(QString, String)
-DECLARE_JSON_GET_REF_TYPE(QJsonObject, Object)
-DECLARE_JSON_GET_REF_TYPE(QJsonArray, Array)
-DECLARE_JSON_GET_REF_TYPE(QUuid, Uuid)
-DECLARE_JSON_GET_REF_TYPE(int32, Int)
-DECLARE_JSON_GET_REF_TYPE(int64, Integer)
-
-// Overloaded methods and default parameters aren't handled especially elegantly when it comes to this templating,
-// so we need to wrap the offending methods in lambdas to use in the JsonToX aliases.
-#define JSON_LAMBDA_WRAPPER(returnType, getMethod) \
-	[](const QJsonValue& jsonValue) -> returnType { return jsonValue.getMethod(); }
+// For the sake of readability, the implementations for JsonableObject's templated methods
+// and other boilerplate are in this file
+#include "JsonableObject.inl"
 
 // Aliases for different return types for JsonableObject::JsonToVariable()
 // Why are we using lambdas in some places?  Because we apparently can't resolve which version of overloaded functions like
@@ -218,105 +165,10 @@ DECLARE_JSON_GET_REF_TYPE(int64, Integer)
 #define JsonArrayToEnumList(jsonObject, key, outList, enumType) \
 	JsonArrayToList<enumType, IsTypeRef, std::function<enumType(const QJsonValue&)> >(jsonObject, key, outList, &JsonableObject::IsEnum<enumType>, &JsonableObject::GetEnum<enumType>)
 
-template<typename T>
-void JsonableObject::JsonArrayToObjectList(const QJsonObject& jsonObject, const QString& key, QList<T>& outList)
-{
-	QJsonValue listValue = jsonObject[key];
-	if (listValue.isUndefined() || !listValue.isArray())
-	{
-		TBLog::Warning("Error parsing array value for key '%0'.", key);
-		LoadSuccessful = false;
-	}
-	else
-	{
-		QJsonArray jsonArray = listValue.toArray();
-		outList.reserve(jsonArray.count());
-		for (const QJsonValue& arrayElem : jsonArray)
-		{
-			if (arrayElem.isUndefined() || !arrayElem.isObject())
-			{
-				LoadSuccessful = false;
-				TBLog::Warning("Error parsing array element for key '%0'.", key);
-				break;
-			}
-			else
-			{
-				outList.emplaceBack(arrayElem.toObject());
-				if (!outList.back().IsValid())
-				{
-					TBLog::Warning("Error loading object within array for key '%0'.", key);
-					LoadSuccessful = false;
-					break;
-				}
-			}
-		}
-	}
-}
-
-/*
-	Templated to-JSON conversion methods
-*/
-
-template<typename E>
-int64 JsonableObject::EnumToJson(E enumValue)
-{
-	return static_cast<int64>(enumValue);
-}
-
-/*
-	List-to-JsonArray methods and alias macros
-*/
-
-// For use with types that have direct QJsonValue conversions
-template<typename ElemType>
-void JsonableObject::ListToJsonArray(QJsonObject& parentObject, const QString& key, const QList<ElemType>& inList)
-{
-	// QJsonArray does not have a reserve/preallocate method.  Otherwise, I would put one here.
-	QJsonArray outArray;
-	for (const ElemType& element : inList)
-	{
-		outArray.push_back(element);
-	}
-
-	parentObject.insert(key, outArray);
-}
-
-// For use with that have custom conversions, such as listed in the macros below.
-template<typename ListElemType, typename ArrayElemType, typename ConversionMethod>
-void JsonableObject::ListToJsonArray(QJsonObject& parentObject, const QString& key, const QList<ListElemType>& inList, ConversionMethod converter)
-{
-	// Make sure that we have a valid converter at compile time.
-	static_assert(!std::is_null_pointer_v<ConversionMethod>);
-
-	// QJsonArray does not have a reserve/preallocate method.  Otherwise, I would put one here.
-	QJsonArray outArray;
-	for (const ListElemType& element : inList)
-	{
-		ArrayElemType convertedElement = converter(element);
-		outArray.push_back(convertedElement);
-	}
-
-	parentObject.insert(key, outArray);
-}
+// Note: maps are specific enough that alias macros are not provided here.
 
 // Aliases for JsonableObject::ListToJsonArray for types that need conversion.
 #define UuidListToJsonArray(jsonObject, key, inList) \
 	ListToJsonArray<QUuid, QString, std::function<QString(QUuid)> >(jsonObject, key, inList, &JsonableObject::UuidToJson)
 #define EnumListToJsonArray(jsonObject, key, inList, enumType) \
 	ListToJsonArray<enumType, int64, std::function<int64(enumType)> >(jsonObject, key, inList, &JsonableObject::EnumToJson<enumType>)
-
-// Use only with vectors of pointers to JsonableObject-inheriting objects.
-template<typename T>
-void JsonableObject::ObjectListToJsonArray(QJsonObject& parentObject, const QString& key, const QList<T>& inList)
-{
-	// QJsonArray does not have a reserve/preallocate method.  Otherwise, I would put one here.
-	QJsonArray outArray;
-	for (const T& element : inList)
-	{
-		QJsonObject jsonObject;
-		element.PopulateJson(jsonObject);
-		outArray.push_back(jsonObject);
-	}
-
-	parentObject.insert(key, outArray);
-}
