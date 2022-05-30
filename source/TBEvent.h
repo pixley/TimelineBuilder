@@ -21,6 +21,7 @@
 #include "CommonTypes.h"
 #include "Time.h"
 #include <QtCore/QUuid>
+#include <QtCore/QString>
 
 class TBEvent : public JsonableObject
 {

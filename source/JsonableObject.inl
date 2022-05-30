@@ -17,28 +17,14 @@
 
 #pragma once
 #include "JsonableObject.h"
+#include "Logging.h"
+
+#include <utility>
 
 /*
 	Boilerplate macros for use in the type aliases.
 */
-// Types for references to the various typecheck and get methods of QJsonValues or other functions with "const QJsonValue&" as their sole param
-typedef std::function<bool(const QJsonValue&)> IsTypeRef;
-#define DECLARE_JSON_GET_REF_TYPE(type, typeSubstring) \
-typedef std::function<type(const QJsonValue&)> Get##typeSubstring##Ref;
 
-DECLARE_JSON_GET_REF_TYPE(bool, Bool)
-DECLARE_JSON_GET_REF_TYPE(float64, Double)
-DECLARE_JSON_GET_REF_TYPE(QString, String)
-DECLARE_JSON_GET_REF_TYPE(QJsonObject, Object)
-DECLARE_JSON_GET_REF_TYPE(QJsonArray, Array)
-DECLARE_JSON_GET_REF_TYPE(QUuid, Uuid)
-DECLARE_JSON_GET_REF_TYPE(int32, Int)
-DECLARE_JSON_GET_REF_TYPE(int64, Integer)
-
-// Overloaded methods and default parameters aren't handled especially elegantly when it comes to this templating,
-// so we need to wrap the offending methods in lambdas to use in the JsonToX aliases.
-#define JSON_LAMBDA_WRAPPER(returnType, getMethod) \
-	[](const QJsonValue& jsonValue) -> returnType { return jsonValue.getMethod(); }
 
 /*
 	Templated type-check and get-from-JSON methods
@@ -68,8 +54,9 @@ E JsonableObject::GetEnum(const QJsonValue& jsonValue)
 	From-JSON conversion methods and alias macros
 */
 // TypeCheckMethodRef and GetMethodRef should be function references/pointers, such as std::function<>, as shown below
-template<typename T, typename TypeCheckMethodRef, typename GetMethodRef>
-T JsonableObject::JsonToVariable(const QJsonObject& jsonObject, const QString& key, TypeCheckMethodRef typeCheckMethod, GetMethodRef getMethod, T defaultValue)
+template<typename T>
+T JsonableObject::JsonToVariable(const QJsonObject& jsonObject, const QString& key,
+	std::function<bool(const QJsonValue&)> typeCheckMethod, std::function<T(const QJsonValue&)> getMethod, T defaultValue)
 {
 	if (!jsonObject.contains(key))
 	{
@@ -91,8 +78,9 @@ T JsonableObject::JsonToVariable(const QJsonObject& jsonObject, const QString& k
 	}
 }
 
-template<typename T, typename TypeCheckMethodRef, typename GetMethodRef>
-void JsonableObject::JsonArrayToList(const QJsonObject& jsonObject, const QString& key, QList<T>& outList, TypeCheckMethodRef typeCheckMethod, GetMethodRef getMethod)
+template<typename T>
+void JsonableObject::JsonArrayToList(const QJsonObject& jsonObject, const QString& key, QList<T>& outList,
+	std::function<bool(const QJsonValue&)> typeCheckMethod, std::function<T(const QJsonValue&)> getMethod)
 {
 	if (!jsonObject.contains(key))
 	{
@@ -126,9 +114,9 @@ void JsonableObject::JsonArrayToList(const QJsonObject& jsonObject, const QStrin
 	}
 }
 
-template<typename ValueType, MapType<QString, ValueType> T, typename TypeCheckMethodRef, typename GetMethodRef>
-	void JsonableObject::JsonObjectToMap(const QJsonObject& jsonObject, const QString& key, T& outMap,
-		TypeCheckMethodRef typeCheckMethod, GetMethodRef getMethod)
+template<typename ValueType>
+	void JsonableObject::JsonObjectToMap(const QJsonObject& jsonObject, const QString& key, TBMap<QString, ValueType>& outMap,
+		std::function<bool(const QJsonValue&)> typeCheckMethod, std::function<ValueType(const QJsonValue&)> getMethod)
 {
 	if (!jsonObject.contains(key))
 	{
@@ -163,10 +151,10 @@ template<typename ValueType, MapType<QString, ValueType> T, typename TypeCheckMe
 	}
 }
 
-template<typename KeyType, typename ValueType, MapType<KeyType, ValueType> T, typename TypeCheckMethodRef,
-	typename GetMethodRef, typename KeyConversionMethod>
-void JsonableObject::JsonObjectToMap(const QJsonObject& jsonObject, const QString& key, T& outMap,
-	TypeCheckMethodRef typeCheckMethod, GetMethodRef getMethod, KeyConversionMethod keyConverter)
+template<NotStringType KeyType, typename ValueType>
+void JsonableObject::JsonObjectToMap(const QJsonObject& jsonObject, const QString& key, TBMap<KeyType, ValueType>& outMap,
+	std::function<bool(const QJsonValue&)> typeCheckMethod, std::function<ValueType(const QJsonValue&)> getMethod,
+	std::function<KeyType(const QString&)> keyConverter)
 {
 	if (!jsonObject.contains(key))
 	{
@@ -201,7 +189,7 @@ void JsonableObject::JsonObjectToMap(const QJsonObject& jsonObject, const QStrin
 	}
 }
 
-template<JsonableType T>
+template<IsA<JsonableObject> T>
 void JsonableObject::JsonArrayToObjectList(const QJsonObject& jsonObject, const QString& key, QList<T>& outList)
 {
 	if (!jsonObject.contains(key))
@@ -243,8 +231,8 @@ void JsonableObject::JsonArrayToObjectList(const QJsonObject& jsonObject, const 
 	}
 }
 
-template<JsonableType ObjectType, MapType<QString, ObjectType> T>
-void JsonableObject::JsonObjectToObjectMap(const QJsonObject& jsonObject, const QString& key, T& outMap)
+template<IsA<JsonableObject> ObjectType>
+void JsonableObject::JsonObjectToObjectMap(const QJsonObject& jsonObject, const QString& key, TBMap<QString, ObjectType>& outMap)
 {
 	if (!jsonObject.contains(key))
 	{
@@ -287,9 +275,9 @@ void JsonableObject::JsonObjectToObjectMap(const QJsonObject& jsonObject, const 
 	}
 }
 
-template<typename KeyType, JsonableType ObjectType, MapType<KeyType, ObjectType> T, typename KeyConversionMethod>
-void JsonableObject::JsonObjectToObjectMap(const QJsonObject& jsonObject, const QString& key, T& outMap,
-	KeyConversionMethod keyConverter)
+template<NotStringType KeyType, IsA<JsonableObject> ObjectType>
+void JsonableObject::JsonObjectToObjectMap(const QJsonObject& jsonObject, const QString& key,
+	TBMap<KeyType, ObjectType>& outMap, std::function<KeyType(const QString&)> keyConverter)
 {
 	if (!jsonObject.contains(key))
 	{
@@ -306,13 +294,13 @@ void JsonableObject::JsonObjectToObjectMap(const QJsonObject& jsonObject, const 
 	else
 	{
 		QJsonObject mapObject = mapValue.toObject();
-		outMap.reserve(mapObject.length);
-		for (QJsonObject::ConstIterator keyValPair : outMap)
+		outMap.reserve(mapObject.length());
+		for (QJsonObject::ConstIterator keyValPair = mapObject.begin(); keyValPair != mapObject.end(); keyValPair++)
 		{
-			const QJsonValue& value = keyValPair.value;
+			const QJsonValue& value = keyValPair.value();
 			if (!value.isUndefined() && value.isObject())
 			{
-				KeyType convertedKey = keyConverter(keyValPair.key);
+				KeyType convertedKey = keyConverter(keyValPair.key());
 				outMap.emplace(convertedKey);
 				ObjectType& newObject = outMap[convertedKey];
 				newObject.LoadFromJson(value.toObject());
@@ -362,8 +350,9 @@ void JsonableObject::ListToJsonArray(QJsonObject& parentObject, const QString& k
 }
 
 // For use with that have custom conversions, such as listed in the macros below.
-template<typename ListElemType, typename ArrayElemType, typename ConversionMethod>
-void JsonableObject::ListToJsonArray(QJsonObject& parentObject, const QString& key, const QList<ListElemType>& inList, ConversionMethod converter)
+template<typename ListElemType, typename ArrayElemType>
+void JsonableObject::ListToJsonArray(QJsonObject& parentObject, const QString& key, const QList<ListElemType>& inList,
+	std::function<ArrayElemType(const ListElemType&)> converter)
 {
 	// QJsonArray does not have a reserve/preallocate method.  Otherwise, I would put one here.
 	QJsonArray outArray;
@@ -376,7 +365,7 @@ void JsonableObject::ListToJsonArray(QJsonObject& parentObject, const QString& k
 	parentObject.insert(key, outArray);
 }
 
-template<JsonableType T>
+template<IsA<JsonableObject> T>
 void JsonableObject::ObjectListToJsonArray(QJsonObject& parentObject, const QString& key, const QList<T>& inList)
 {
 	// QJsonArray does not have a reserve/preallocate method.  Otherwise, I would put one here.
@@ -391,84 +380,95 @@ void JsonableObject::ObjectListToJsonArray(QJsonObject& parentObject, const QStr
 	parentObject.insert(key, outArray);
 }
 
-template<typename ValueType, MapType<QString, ValueType> T>
-void JsonableObject::MapToJsonObject(QJsonObject& parentObject, const QString& key, const T& inMap)
+template<typename ValueType>
+void JsonableObject::MapToJsonObject(QJsonObject& parentObject, const QString& key, const TBMap<QString, ValueType>& inMap)
 {
 	QJsonObject outObject;
-	for (const T::ConstIterator& keyValPair : inMap)
+	// I generally dislike the use of "auto", but MSVC really didn't like the whole "declare a templated type
+	// within a template" thing with TBMap<>::ConstIterator.  Declaring the iterator as "auto" works around this.
+	for (auto keyValPair = inMap.begin(); keyValPair != inMap.end(); keyValPair++)
 	{
-		outObject[keyValPair.key] = keyValPair.value;
+		outObject[keyValPair.key()] = keyValPair.value();
 	}
 
 	parentObject.insert(key, outObject);
 }
 
-template<typename KeyType, typename ValueType, MapType<KeyType, ValueType> T, typename ObjectKeyType, typename KeyConversionMethod>
-	requires (!std::is_same_v<KeyType, ObjectKeyType>)
-void JsonableObject::MapToJsonObject(QJsonObject& parentObject, const QString& key, const T& inMap, KeyConversionMethod keyConverter)
+template<NotStringType KeyType, typename ValueType>
+void JsonableObject::MapToJsonObject(QJsonObject& parentObject, const QString& key,
+	const TBMap<KeyType, ValueType>& inMap, std::function<QString(const KeyType&)> keyConverter)
 {
 	QJsonObject outObject;
-	for (const T::ConstIterator& keyValPair : inMap)
+	// I generally dislike the use of "auto", but MSVC really didn't like the whole "declare a templated type
+	// within a template" thing with TBMap<>::ConstIterator.  Declaring the iterator as "auto" works around this.
+	for (auto keyValPair = inMap.begin(); keyValPair != inMap.end(); keyValPair++)
 	{
-		outObject[keyConverter(keyValPair.key)] = keyValPair.value;
+		outObject[keyConverter(keyValPair.key())] = keyValPair.value();
 	}
 
 	parentObject.insert(key, outObject);
 }
 
-template<typename ValueType, MapType<QString, ValueType> T, typename ObjectValueType, typename ValueConversionMethod>
+template<typename ValueType, typename ObjectValueType>
 	requires (!std::is_same_v<ValueType, ObjectValueType>)
-void JsonableObject::MapToJsonObject(QJsonObject& parentObject, const QString& key, const T& inMap, ValueConversionMethod valueConverter)
+void JsonableObject::MapToJsonObject(QJsonObject& parentObject, const QString& key,
+	const TBMap<QString, ValueType>& inMap, std::function<ObjectValueType(const ValueType&)> valueConverter)
 {
 	QJsonObject outObject;
-	for (const T::ConstIterator& keyValPair : inMap)
+	// I generally dislike the use of "auto", but MSVC really didn't like the whole "declare a templated type
+	// within a template" thing with TBMap<>::ConstIterator.  Declaring the iterator as "auto" works around this.
+	for (auto keyValPair = inMap.begin(); keyValPair != inMap.end(); keyValPair++)
 	{
-		outObject[keyValPair.key] = valueConverter(keyValPair.value);
+		outObject[keyValPair.key()] = valueConverter(keyValPair.value());
 	}
 
 	parentObject.insert(key, outObject);
 }
 
-template<typename KeyType, typename ValueType, MapType<KeyType, ValueType> T, typename ObjectKeyType,
-	typename ObjectValueType, typename KeyConversionMethod, typename ValueConversionMethod>
-	requires (!std::is_same_v<KeyType, ObjectKeyType> && !std::is_same_v<ValueType, ObjectValueType>)
-void JsonableObject::MapToJsonObject(QJsonObject& parentObject, const QString& key, const T& inMap,
-	KeyConversionMethod keyConverter, ValueConversionMethod valueConverter)
+template<NotStringType KeyType, typename ValueType, typename ObjectValueType>
+	requires (!std::is_same_v<ValueType, ObjectValueType>)
+void JsonableObject::MapToJsonObject(QJsonObject& parentObject, const QString& key, const TBMap<KeyType, ValueType>& inMap,
+	std::function<QString(const KeyType&)> keyConverter, std::function<ObjectValueType(const ValueType&)> valueConverter)
 {
 	QJsonObject outObject;
-	for (const T::ConstIterator& keyValPair : inMap)
+	// I generally dislike the use of "auto", but MSVC really didn't like the whole "declare a templated type
+	// within a template" thing with TBMap<>::ConstIterator.  Declaring the iterator as "auto" works around this.
+	for (auto keyValPair = inMap.begin(); keyValPair != inMap.end(); keyValPair++)
 	{
-		outObject[keyConverter(keyValPair.key)] = valueConverter(keyValPair.value);
+		outObject[keyConverter(keyValPair.key())] = valueConverter(keyValPair.value());
 	}
 
 	parentObject.insert(key, outObject);
 }
 
-template<JsonableType ValueType, MapType<QString, ValueType> T>
-void JsonableObject::ObjectMapToJsonObject(QJsonObject& parentObject, const QString& key, const T& inMap)
+template<IsA<JsonableObject> ValueType>
+void JsonableObject::ObjectMapToJsonObject(QJsonObject& parentObject, const QString& key, const TBMap<QString, ValueType>& inMap)
 {
 	QJsonObject outObject;
-	for (const T::ConstIterator& keyValPair : inMap)
+	// I generally dislike the use of "auto", but MSVC really didn't like the whole "declare a templated type
+	// within a template" thing with TBMap<>::ConstIterator.  Declaring the iterator as "auto" works around this.
+	for (auto keyValPair = inMap.begin(); keyValPair != inMap.end(); keyValPair++)
 	{
 		QJsonObject valObject;
-		keyValPair.value.PopulateJson(valObject);
-		outObject[keyValPair.key] = valObject;
+		keyValPair.value().PopulateJson(valObject);
+		outObject[keyValPair.key()] = valObject;
 	}
 
 	parentObject.insert(key, outObject);
 }
 
-template<typename KeyType, JsonableType ValueType, MapType<KeyType, ValueType> T, typename ObjectKeyType, typename KeyConversionMethod>
-	requires (!std::is_same_v<KeyType, ObjectKeyType>)
+template<NotStringType KeyType, IsA<JsonableObject> ValueType>
 void JsonableObject::ObjectMapToJsonObject(QJsonObject& parentObject, const QString& key,
-	const T& inMap, KeyConversionMethod keyConverter)
+	const TBMap<KeyType, ValueType>& inMap, std::function<QString(const KeyType&)> keyConverter)
 {
 	QJsonObject outObject;
-	for (const T::ConstIterator& keyValPair : inMap)
+	// I generally dislike the use of "auto", but MSVC really didn't like the whole "declare a templated type
+	// within a template" thing with TBMap<>::ConstIterator.  Declaring the iterator as "auto" works around this.
+	for (auto keyValPair = inMap.begin(); keyValPair != inMap.end(); keyValPair++)
 	{
 		QJsonObject valObject;
-		keyValPair.value.PopulateJson(valObject);
-		outObject[keyConverter(keyValPair.key)] = valObject;
+		keyValPair.value().PopulateJson(valObject);
+		outObject[keyConverter(keyValPair.key())] = valObject;
 	}
 
 	parentObject.insert(key, outObject);

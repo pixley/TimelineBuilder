@@ -17,25 +17,38 @@
 
 #pragma once
 
+#include <cstdint>
+
+#if TB_MAP_IS_HASH
+#include <QtCore/QHash>
+#else
+#include <QtCore/QMap>
+#endif
+
 /*
 	Unreal-style names for integer types because I like them.
 */
-typedef unsigned char uint8;
-typedef signed char int8;
-typedef unsigned short uint16;
-typedef signed short int16;
-typedef unsigned int uint32;
-typedef signed int int32;
-typedef unsigned long long uint64;
-typedef signed long long int64;
+typedef uint8_t uint8;
+typedef int8_t int8;
+typedef uint16_t uint16;
+typedef int16_t int16;
+typedef uint32_t uint32;
+typedef int32_t int32;
+typedef uint64_t uint64;
+typedef int64_t int64;
 typedef float float32;
 typedef double float64;
 
 /*
-	Project-wide selection as to what the default map container should be
+	Project-wide selection as to what the default map container type should be
 */
-#define TBMap QHash
-//#define TBMap QMap
+#if TB_MAP_IS_HASH
+template<typename KeyType, typename ValueType>
+using TBMap = QHash<KeyType, ValueType>;
+#else
+template<typename KeyType, typename ValueType>
+using TBMap = QMap<KeyType, ValueType>;
+#endif
 
 /*
 	Boundary values

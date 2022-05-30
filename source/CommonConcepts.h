@@ -34,17 +34,9 @@ concept NumberType = std::is_arithmetic_v<std::remove_reference_t<T>>;
 template<typename T>
 concept StringType = std::is_same_v<std::remove_cvref_t<T>, class QString>;
 
-// Check whether the container is a QMap or a QHash
-// C++20 does not have the means to compare whether two types specialize the same template, so
-// we have to do this in a bit of a roundabout way by also bringing in the key and value types.
-// There is currently a proposal to have this in C++23, but I'm working on this now, not once it's implemented.
-// Reportedly, MSVC does have an implementation for this sort of thing as part of <type_traits>, but
-// I'm scared to use it.  Also, it'd just make life harder for anyone who wants to port this to a
-// different OS down the line.
-template<typename Container, typename Key, typename Value>
-concept MapType = std::is_same_v<std::remove_cvref_t<Container>, class QMap<Key, Value>> ||
-	std::is_same_v<std::remove_cvref_t<Container>, class QHash<Key, Value>>;
-
-// Check whether a type inherits from JsonableObject
 template<typename T>
-concept JsonableType = std::is_base_of_v<class JsonableObject, T>;
+concept NotStringType = !(std::is_same_v<std::remove_cvref_t<T>, class QString>);
+
+// Use in as "IsA<Base> T"
+template<typename Derived, typename Base>
+concept IsA = std::is_base_of_v<Base, Derived>;

@@ -81,6 +81,7 @@
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
       <IntelJCCErratum>false</IntelJCCErratum>
+      <PreprocessorDefinitions>TB_MAP_IS_HASH=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(LOCALAPPDATA)\Programs\Python\Python39\libs;$(SolutionDir)$(Platform)/$(Configuration)/extern/qt6/lib</AdditionalLibraryDirectories>
@@ -96,6 +97,7 @@
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
       <IntelJCCErratum>false</IntelJCCErratum>
+      <PreprocessorDefinitions>TB_MAP_IS_HASH=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(LOCALAPPDATA)\Programs\Python\Python39\libs;$(SolutionDir)$(Platform)/$(Configuration)/extern/qt6/lib</AdditionalLibraryDirectories>
@@ -131,6 +133,7 @@
   <ItemGroup>
     <ClCompile Include="source\JsonFiles.cpp" />
     <ClCompile Include="source\TBEra.cpp" />
+    <ClCompile Include="source\TBTimeline.cpp" />
     <ClCompile Include="source\TestSuite.cpp" />
     <QtRcc Include="TimelineBuilder.qrc" />
     <QtUic Include="TimelineBuilder.ui" />
