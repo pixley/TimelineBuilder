@@ -386,6 +386,7 @@ void JsonableObject::MapToJsonObject(QJsonObject& parentObject, const QString& k
 	QJsonObject outObject;
 	// I generally dislike the use of "auto", but MSVC really didn't like the whole "declare a templated type
 	// within a template" thing with TBMap<>::ConstIterator.  Declaring the iterator as "auto" works around this.
+	// I also would have done this as a ranged-for, but TBMap only returns the value when you do that.
 	for (auto keyValPair = inMap.begin(); keyValPair != inMap.end(); keyValPair++)
 	{
 		outObject[keyValPair.key()] = keyValPair.value();
@@ -401,6 +402,7 @@ void JsonableObject::MapToJsonObject(QJsonObject& parentObject, const QString& k
 	QJsonObject outObject;
 	// I generally dislike the use of "auto", but MSVC really didn't like the whole "declare a templated type
 	// within a template" thing with TBMap<>::ConstIterator.  Declaring the iterator as "auto" works around this.
+	// I also would have done this as a ranged-for, but TBMap only returns the value when you do that.
 	for (auto keyValPair = inMap.begin(); keyValPair != inMap.end(); keyValPair++)
 	{
 		outObject[keyConverter(keyValPair.key())] = keyValPair.value();
@@ -417,6 +419,7 @@ void JsonableObject::MapToJsonObject(QJsonObject& parentObject, const QString& k
 	QJsonObject outObject;
 	// I generally dislike the use of "auto", but MSVC really didn't like the whole "declare a templated type
 	// within a template" thing with TBMap<>::ConstIterator.  Declaring the iterator as "auto" works around this.
+	// I also would have done this as a ranged-for, but TBMap only returns the value when you do that.
 	for (auto keyValPair = inMap.begin(); keyValPair != inMap.end(); keyValPair++)
 	{
 		outObject[keyValPair.key()] = valueConverter(keyValPair.value());
@@ -433,6 +436,7 @@ void JsonableObject::MapToJsonObject(QJsonObject& parentObject, const QString& k
 	QJsonObject outObject;
 	// I generally dislike the use of "auto", but MSVC really didn't like the whole "declare a templated type
 	// within a template" thing with TBMap<>::ConstIterator.  Declaring the iterator as "auto" works around this.
+	// I also would have done this as a ranged-for, but TBMap only returns the value when you do that.
 	for (auto keyValPair = inMap.begin(); keyValPair != inMap.end(); keyValPair++)
 	{
 		outObject[keyConverter(keyValPair.key())] = valueConverter(keyValPair.value());
@@ -447,6 +451,7 @@ void JsonableObject::ObjectMapToJsonObject(QJsonObject& parentObject, const QStr
 	QJsonObject outObject;
 	// I generally dislike the use of "auto", but MSVC really didn't like the whole "declare a templated type
 	// within a template" thing with TBMap<>::ConstIterator.  Declaring the iterator as "auto" works around this.
+	// I also would have done this as a ranged-for, but TBMap only returns the value when you do that.
 	for (auto keyValPair = inMap.begin(); keyValPair != inMap.end(); keyValPair++)
 	{
 		QJsonObject valObject;
@@ -464,6 +469,7 @@ void JsonableObject::ObjectMapToJsonObject(QJsonObject& parentObject, const QStr
 	QJsonObject outObject;
 	// I generally dislike the use of "auto", but MSVC really didn't like the whole "declare a templated type
 	// within a template" thing with TBMap<>::ConstIterator.  Declaring the iterator as "auto" works around this.
+	// I also would have done this as a ranged-for, but TBMap only returns the value when you do that.
 	for (auto keyValPair = inMap.begin(); keyValPair != inMap.end(); keyValPair++)
 	{
 		QJsonObject valObject;
