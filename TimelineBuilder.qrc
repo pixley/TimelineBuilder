@@ -1,4 +1,7 @@
 <RCC>
-    <qresource prefix="TimelineBuilder">
+    <qresource prefix="/">
+        <file>config/DefaultSystem.ini</file>
+        <file>config/DefaultPlatform.ini</file>
+        <file>config/DefaultGui.ini</file>
     </qresource>
 </RCC>

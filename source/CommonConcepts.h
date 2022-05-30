@@ -37,6 +37,9 @@ concept StringType = std::is_same_v<std::remove_cvref_t<T>, class QString>;
 template<typename T>
 concept NotStringType = !(std::is_same_v<std::remove_cvref_t<T>, class QString>);
 
+template<typename T>
+concept VariantCompatible = !(std::is_same_v<std::remove_cvref_t<T>, class QVariant>) && std::is_constructible_v<class QVariant, T>;
+
 // Use in as "IsA<Base> T"
 template<typename Derived, typename Base>
 concept IsA = std::is_base_of_v<Base, Derived>;

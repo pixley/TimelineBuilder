@@ -70,6 +70,9 @@
     <ClCompile Include="source\TBTimeline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\Settings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source/TBEvent.h">
@@ -109,6 +112,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="source\CommonConcepts.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Settings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

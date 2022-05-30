@@ -132,6 +132,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="source\JsonFiles.cpp" />
+    <ClCompile Include="source\Settings.cpp" />
     <ClCompile Include="source\TBEra.cpp" />
     <ClCompile Include="source\TBTimeline.cpp" />
     <ClCompile Include="source\TestSuite.cpp" />
@@ -158,6 +159,7 @@
     <ClInclude Include="source\CommonConcepts.h" />
     <ClInclude Include="source\JsonFiles.h" />
     <ClInclude Include="source\Logging.h" />
+    <ClInclude Include="source\Settings.h" />
     <ClInclude Include="source\TestSuite.h" />
     <ClInclude Include="source\Version.h" />
   </ItemGroup>

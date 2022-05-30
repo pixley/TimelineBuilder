@@ -20,23 +20,34 @@
 #include "Version.h"
 #include "TimelineBuilder.h"
 #include "Logging.h"
+#include "Settings.h"
 #include "TestSuite.h"
 
 #include <QtWidgets/QApplication>
-#include <QtCore/QtGlobal>
-#include <QtCore/QtDebug>
 
 #include <iostream>
+#if defined(Q_OS_WINDOWS)
 #include <Windows.h>
+#endif
 
 namespace py = pybind11;
 
+int cleanupAfter(int exitCode)
+{
+	// Any pre-exit logic we want to run goes here.
+	TBSettings::Cleanup();
+
+	return exitCode;
+}
+
 int main(int argc, char *argv[])
 {
+#if defined(Q_OS_WINDOWS)
 	// Set the console to use UTF-8 and then allocate a buffer to allow multi-byte characters to print
 	SetConsoleOutputCP(CP_UTF8);
 	setvbuf(stdout, nullptr, _IOFBF, 4);
 	setvbuf(stderr, nullptr, _IOFBF, 4);
+#endif
 
 	// Initialize the Qt application
 	QApplication app(argc, argv);
@@ -45,6 +56,10 @@ int main(int argc, char *argv[])
 	QApplication::setApplicationVersion(QString("%0.%1.%2").arg(MAJOR_VERSION, MINOR_VERSION, PATCH_VERSION));
 	QApplication::setOrganizationName("Tyler Pixley");
 	QApplication::setOrganizationDomain("https://pixley.github.io");
+
+	// Initialize settings
+	// This needs to be done after Qt app initialization so that we can carry forward some app info
+	TBSettings::Initialize(app);
 
 	// Do some Python initialization
 	py::scoped_interpreter pythonInterpreter;
@@ -58,7 +73,7 @@ int main(int argc, char *argv[])
 	catch (py::error_already_set& pythonException)
 	{
 		TBLog::Error("Error in Python sys module!  %0  Aborting...", pythonException.what());
-		return -1;
+		return cleanupAfter(-1);
 	}
 
 	{
@@ -67,11 +82,19 @@ int main(int argc, char *argv[])
 		if (tests.RunTests())
 		{
 			// If any tests run, then we don't want to launch as a windowed application.
-			return 0;
+			return cleanupAfter(0);
 		}
 	}
 
 	TimelineBuilder mainWindow;
 	mainWindow.show();
-	return app.exec();
+	try
+	{
+		return cleanupAfter(app.exec());
+	}
+	catch (...)
+	{
+		// Still want to clean up after any unhandled exception
+		return cleanupAfter(-1);
+	}
 }
