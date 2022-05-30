@@ -41,6 +41,7 @@ protected:
 	// Member variables
 	TBTimelineSettings Settings;
 	TBDate PresentDate;
+	QUuid DefaultCalendarSystem;
 	TBMap<QUuid, class TBEra> Eras;
 	TBMap<QUuid, class TBEvent> Events;
 };

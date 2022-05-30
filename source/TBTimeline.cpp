@@ -19,6 +19,7 @@
 #include "CommonTypes.h"
 #include "TBEra.h"
 #include "TBEvent.h"
+#include "Calendar.h"
 
 #include <QtCore/QUuid>
 #include <QtCore/QString>
@@ -39,6 +40,7 @@ TBTimeline::TBTimeline() :
 	JsonableObject(),
 	Settings(),
 	PresentDate(0),
+	DefaultCalendarSystem(),
 	Eras(),
 	Events()
 {
@@ -52,6 +54,7 @@ bool TBTimeline::LoadFromJson(const QJsonObject& jsonObject)
 	Settings.MinYear = JsonToInt64(jsonObject, "min_year");
 	Settings.MaxYear = JsonToInt64(jsonObject, "max_year");
 	PresentDate = JsonToInt64(jsonObject, "present_date");
+	DefaultCalendarSystem = JsonToUuid(jsonObject, "default_calendar");
 
 	JsonObjectToEraMap(jsonObject, "eras", Eras);
 	JsonObjectToEventMap(jsonObject, "events", Events);
@@ -64,6 +67,7 @@ void TBTimeline::PopulateJson(QJsonObject& jsonObject) const
 	jsonObject.insert("min_year", Settings.MinYear);
 	jsonObject.insert("max_year", Settings.MaxYear);
 	jsonObject.insert("present_date", PresentDate.GetDays());
+	jsonObject.insert("default_calendar", UuidToJson(DefaultCalendarSystem));
 
 	EraMapToJsonObject(jsonObject, "eras", Eras);
 	EventMapToJsonObject(jsonObject, "events", Events);
