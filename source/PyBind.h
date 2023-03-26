@@ -29,6 +29,19 @@
 
 namespace py = pybind11;
 
+// Repackage exceptions for display and logging.
+#define CATCH_PY_EXCEPTIONS \
+catch (py::error_already_set& pythonException) \
+{ \
+	TBLog::Error("Exception when calling Python function '%0' from %1 (Line %2): %3", functionName, callingFunction, callingLine, pythonException.what()); \
+	throw pythonException; \
+} \
+catch (std::runtime_error& otherException) \
+{ \
+	TBLog::Error("Exception inside pybind11 from %0 (Line %1): %2", callingFunction, callingLine, otherException.what()); \
+	throw otherException; \
+}
+
 template<typename T, typename... Args>
 T CallPythonFunction(py::module_& pythonModule, const char* functionName, const char* callingFunction, int callingLine, Args&&... args)
 {
@@ -37,17 +50,7 @@ T CallPythonFunction(py::module_& pythonModule, const char* functionName, const 
 		py::object result = pythonModule.attr(functionName)(std::forward<Args>(args)...);
 		return result.cast<T>();
 	}
-	catch (py::error_already_set& pythonException)
-	{
-		TBLog::Error("Exception when calling Python function '%0' from %1 (Line %2): %3", functionName, callingFunction, callingLine, pythonException.what());
-		// Throw again so that this can be handled at a higher level if necessary.
-		throw pythonException;
-	}
-	catch (std::runtime_error& otherException)
-	{
-		TBLog::Error("Exception inside pybind11 from %0 (Line %1): %2", callingFunction, callingLine, otherException.what());
-		throw otherException;
-	}
+	CATCH_PY_EXCEPTIONS
 }
 
 template<typename... Args>
@@ -57,15 +60,26 @@ void CallVoidPythonFunction(py::module_& pythonModule, const char* functionName,
 	{
 		pythonModule.attr(functionName)(std::forward<Args>(args)...);
 	}
-	catch (py::error_already_set& pythonException)
+	CATCH_PY_EXCEPTIONS
+}
+
+template<typename T, typename... Args>
+T CallPythonMethod(py::object& pythonObject, const char* functionName, const char* callingFunction, int callingLine, Args&&... args)
+{
+	try
 	{
-		TBLog::Error("Exception when calling Python function '%0' from %1 (Line %2): %3", functionName, callingFunction, callingLine, pythonException.what());
-		// Throw again so that this can be handled at a higher level if necessary.
-		throw pythonException;
+		py::object result = pythonObject.attr(functionName)(std::forward<Args>(args)...);
+		return result.cast<T>();
 	}
-	catch (std::runtime_error& otherException)
+	CATCH_PY_EXCEPTIONS
+}
+
+template<typename... Args>
+void CallVoidPythonMethod(py::object& pythonObject, const char* functionName, const char* callingFunction, int callingLine, Args&&... args)
+{
+	try
 	{
-		TBLog::Error("Exception inside pybind11 from %0 (Line %1): %2", callingFunction, callingLine, otherException.what());
-		throw otherException;
+		pythonObject.attr(functionName)(std::forward<Args>(args)...);
 	}
+	CATCH_PY_EXCEPTIONS
 }

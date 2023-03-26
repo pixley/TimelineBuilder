@@ -20,13 +20,25 @@
 
 #include <QtCore/QByteArray>
 
+#ifdef TB_DEVELOPMENT
+// Keep written JSON files in a human-readable format for development
+#define JSON_FORMAT QJsonDocument::Indented
+#else
+#define JSON_FORMAT QJsonDocument::Compact
+#endif
+
 TBJsonFile::TBJsonFile() : file(), jsonDoc(), result(EJsonFileResult::NoFileSpecified)
 {
 }
 
-TBJsonFile::TBJsonFile(const QString& filePath, QIODeviceBase::OpenMode openMode) : file(filePath), jsonDoc(), result()
+TBJsonFile::TBJsonFile(const QString& filePath, QIODeviceBase::OpenMode openMode) :
+	file(filePath), jsonDoc(), result(EJsonFileResult::Pending)
 {
-	if (!file.open(openMode))
+	if (filePath.isEmpty())
+	{
+		result = EJsonFileResult::NoFileSpecified;
+	}
+	else if (!file.open(openMode | QIODeviceBase::Text))
 	{
 		result = EJsonFileResult::FileNotFound;
 	}
@@ -47,11 +59,26 @@ TBJsonFile::TBJsonFile(const QString& filePath, QIODeviceBase::OpenMode openMode
 	}
 }
 
-EJsonFileResult TBJsonFile::GetJsonDocument(QJsonDocument& outJsonDoc)
+bool TBJsonFile::SaveJsonDocument()
+{
+	if (result == EJsonFileResult::Success && (file.openMode() & QIODeviceBase::WriteOnly) != 0)
+	{
+		// Save changes to the file.
+		QByteArray fileBytes = jsonDoc.toJson(JSON_FORMAT);
+		if (file.write(fileBytes) == fileBytes.length())
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+EJsonFileResult TBJsonFile::GetJsonDocument(QJsonDocument*& outJsonDoc)
 {
 	if (result == EJsonFileResult::Success)
 	{
-		outJsonDoc = jsonDoc;
+		outJsonDoc = &jsonDoc;
 	}
 
 	return result;

@@ -146,8 +146,6 @@ protected:
 };
 
 // Aliases for different return types for JsonableObject::JsonToVariable()
-// Why are we using lambdas in some places?  Because we apparently can't resolve which version of overloaded functions like
-// QJsonValue::toString we want even though only one of the overloads matches the signature that the parameter type encodes.  Ugh.
 #define JsonToBool(jsonObject, key) \
 	JsonToVariable<bool>(jsonObject, key, &QJsonValue::isBool, &JsonableObject::GetBool, false)
 #define JsonToFloat64(jsonObject, key) \

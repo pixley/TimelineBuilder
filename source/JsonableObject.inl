@@ -53,7 +53,6 @@ E JsonableObject::GetEnum(const QJsonValue& jsonValue)
 /*
 	From-JSON conversion methods and alias macros
 */
-// TypeCheckMethodRef and GetMethodRef should be function references/pointers, such as std::function<>, as shown below
 template<typename T>
 T JsonableObject::JsonToVariable(const QJsonObject& jsonObject, const QString& key,
 	std::function<bool(const QJsonValue&)> typeCheckMethod, std::function<T(const QJsonValue&)> getMethod, T defaultValue)

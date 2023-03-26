@@ -15,7 +15,7 @@
 	TimelineBuilder. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "TBEra.h"
+#include "Era.h"
 
 TBEra::TBEra() : JsonableObject(),
 	Name(),

@@ -22,10 +22,16 @@
 #include <vector>
 #include <string>
 
+// These are not safe to call until the CalendarScript is initialized.
 #define ScriptFunction(type, functionName, ...) \
 	CallPythonFunction<type>(*CalendarScript, functionName, __FUNCTION__, __LINE__ __VA_OPT__(,) __VA_ARGS__)
 #define VoidScriptFunction(functionName, ...) \
 	CallVoidPythonFunction(*CalendarScript, functionName, __FUNCTION__, __LINE__ __VA_OPT__(,) __VA_ARGS__)
+// These are not safe to call until the CalendarObject is initialized.
+#define ScriptMethod(type, methodName, ...) \
+	CallPythonMethod<type>(*CalendarObject, methodName, __FUNCTION__, __LINE__ __VA_OPT__(,) __VA_ARGS__)
+#define VoidScriptMethod(functionName, ...) \
+	CallVoidPythonMethod(*CalendarObject, methodName, __FUNCTION__, __LINE__ __VA_OPT__(,) __VA_ARGS__)
 
 /*
 	Helper functions for converting between Python arrays and QLists
@@ -44,19 +50,12 @@ TBCalendarSystem::TBCalendarSystem() : JsonableObject(),
 	Name(),
 	Description(),
 	ScriptName(),
-	CalendarScript(nullptr),
+	CalendarScript(),
+	CalendarObject(),
 	CachedBrokenDateLength(0),
 	CachedDateFormat(),
 	CachedTimespanFormat()
 {}
-
-TBCalendarSystem::~TBCalendarSystem()
-{
-	if (CalendarScript != nullptr)
-	{
-		delete CalendarScript;
-	}
-}
 
 bool TBCalendarSystem::LoadFromJson(const QJsonObject& jsonObject)
 {
@@ -84,7 +83,9 @@ bool TBCalendarSystem::InitializeScript()
 		return false;
 	}
 
-	CalendarScript = new py::module_();
+	CalendarScript = std::make_unique<py::module_>();
+	CalendarObject = std::make_unique<py::object>();
+
 	try
 	{
 		*CalendarScript = py::module_::import(ScriptName.toUtf8());
@@ -95,64 +96,65 @@ bool TBCalendarSystem::InitializeScript()
 		return false;
 	}
 
-	VoidScriptFunction("init_calendar");
-	CachedBrokenDateLength = ScriptFunction(int32, "get_broken_date_length");
-	CachedDateFormat = ScriptFunction(std::string, "get_date_format").data();
-	CachedTimespanFormat = ScriptFunction(std::string, "get_timespan_format").data();
+	*CalendarObject = ScriptFunction(py::object, "init_calendar");
+
+	CachedBrokenDateLength = ScriptMethod(int32, "get_broken_date_length");
+	CachedDateFormat = ScriptMethod(std::string, "get_date_format").data();
+	CachedTimespanFormat = ScriptMethod(std::string, "get_timespan_format").data();
 
 	return true;
 }
 
 QString TBCalendarSystem::FormatDate(TBDate date) const
 {
-	return ScriptFunction(std::string, "format_date", date.GetDays()).data();
+	return ScriptMethod(std::string, "format_date", date.GetDays()).data();
 }
 
 QString TBCalendarSystem::FormatDate(const TBBrokenDate& date) const
 {
 	std::vector<int64> dateVector(date.begin(), date.end());
-	return ScriptFunction(std::string, "format_broken_date", dateVector).data();
+	return ScriptMethod(std::string, "format_broken_date", dateVector).data();
 }
 
 QString TBCalendarSystem::FormatDateSpan(TBDate startDate, TBDate endDate) const
 {
-	return ScriptFunction(std::string, "format_date_span", startDate.GetDays(), endDate.GetDays()).data();
+	return ScriptMethod(std::string, "format_date_span", startDate.GetDays(), endDate.GetDays()).data();
 }
 
 QString TBCalendarSystem::FormatTimespan(const TBBrokenTimespan& span) const
 {
 	std::vector<int64> spanVector(span.begin(), span.end());
-	return ScriptFunction(std::string, "format_timespan", spanVector).data();
+	return ScriptMethod(std::string, "format_timespan", spanVector).data();
 }
 
 void TBCalendarSystem::BreakDate(TBDate date, TBBrokenDate& outBrokenDate) const
 {
-	std::vector<int64> result = ScriptFunction(std::vector<int64>, "break_date", date.GetDays());
+	std::vector<int64> result = ScriptMethod(std::vector<int64>, "break_date", date.GetDays());
 	outBrokenDate = TBBrokenTimespan(result.begin(), result.end());
 }
 
 void TBCalendarSystem::BreakDateSpan(TBDate startDate, TBDate endDate, TBBrokenTimespan& outBrokenSpan) const
 {
-	std::vector<int64> result = ScriptFunction(std::vector<int64>, "break_date_span", startDate.GetDays(), endDate.GetDays());
+	std::vector<int64> result = ScriptMethod(std::vector<int64>, "break_date_span", startDate.GetDays(), endDate.GetDays());
 	outBrokenSpan = TBBrokenTimespan(result.begin(), result.end());
 }
 
 TBDate TBCalendarSystem::CombineDate(const TBBrokenDate& brokenDate) const
 {
 	std::vector<int64> dateVector(brokenDate.begin(), brokenDate.end());
-	return ScriptFunction(int64, "combine_date", dateVector);
+	return ScriptMethod(int64, "combine_date", dateVector);
 }
 
 TBDate TBCalendarSystem::MoveDate(TBDate startDate, const TBBrokenTimespan& deltaTime) const
 {
 	std::vector<int64> deltaVector(deltaTime.begin(), deltaTime.end());
-	return TBDate(ScriptFunction(int64, "move_date", startDate.GetDays(), deltaVector));
+	return TBDate(ScriptMethod(int64, "move_date", startDate.GetDays(), deltaVector));
 }
 
 bool TBCalendarSystem::ValidateBrokenDate(const TBBrokenDate& brokenDate) const
 {
 	std::vector<int64> dateVector(brokenDate.begin(), brokenDate.end());
-	return ScriptFunction(bool, "validate_date", dateVector);
+	return ScriptMethod(bool, "validate_date", dateVector);
 }
 
 int32 TBCalendarSystem::GetBrokenDateLength() const

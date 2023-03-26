@@ -43,22 +43,18 @@ private:
 	static TBSettings* singleton;
 
 	// Restrict these to private to enforce singleton-ness
-	TBSettings() = delete;
-	TBSettings(const QCoreApplication& app);	// Only allow construction with the app
+	TBSettings();
 	TBSettings(const TBSettings& other) = delete;
 	TBSettings& operator=(const TBSettings& other) = delete;
 	~TBSettings();
 
 public:
 	// Static initialization and access
-	static void Initialize(const QCoreApplication& app);
+	static void Initialize();
 	static TBSettings& Get() { return *singleton; }
 	static void Cleanup();
 
 	void SyncAllFiles();
-
-	QVariant GetValue(TBSettingsFile file, const QString& section, const QString& key) const;
-	void SetValue(TBSettingsFile file, const QString& section, const QString& key, const QVariant& value);
 
 	template<VariantCompatible T>
 	T GetValue(TBSettingsFile file, const QString& section, const QString& key) const;
@@ -66,8 +62,10 @@ public:
 	void SetValue(TBSettingsFile file, const QString& section, const QString& key, const T& value);
 
 private:
-	QCommandLineParser Parser;
-	QCommandLineOption DevConfigPath;
+	// Only the templated versions of these should be available publicly.
+	// No one else should have to deal with QVariant.
+	QVariant GetValue(TBSettingsFile file, const QString& section, const QString& key) const;
+	void SetValue(TBSettingsFile file, const QString& section, const QString& key, const QVariant& value);
 
 	// We are specifically using QMap here, rather than the TBMap alias, because this isn't large enough to warrant
 	// a hash-map.

@@ -1,7 +1,7 @@
 /*
 	Copyright (c) 2022 Tyler Pixley, all rights reserved.
 
-	This file (JsonFiles.h) is part of TimelineBuilder.
+	This file (UserException.h) is part of TimelineBuilder.
 
 	TimelineBuilder is free software: you can redistribute it and/or modify it under
 	the terms of the GNU General Public License as published by the Free Software
@@ -17,32 +17,22 @@
 
 #pragma once
 
-#include "CommonTypes.h"
+#include <stdexcept>
 
-#include <QtCore/QFile>
-#include <QtCore/QJsonDocument>
+#include <QtCore/QString>
 
-enum class EJsonFileResult : uint8
-{
-	Pending,
-	Success,
-	NoFileSpecified,
-	FileNotFound,
-	FileNotJson
-};
-
-class TBJsonFile
+class TBUserException : public std::runtime_error
 {
 public:
-	TBJsonFile();
-	TBJsonFile(const QString& filePath, QIODeviceBase::OpenMode openMode);
-	// Only need auto-destructor at present because QFile's destructor handles closing the file.
+	TBUserException(const QString& inWhat, const QString& inDisplay);
+	TBUserException(const char* inWhat, const char* inDisplay);
+	virtual ~TBUserException();
 
-	EJsonFileResult GetJsonDocument(QJsonDocument*& outJsonDoc);
-	bool SaveJsonDocument();
+	// Alias because I prefer capitalized method names and you can't stop me.
+	const char* What() const noexcept { return what(); }
+	const char* UserString() const noexcept { return display; }
 
 private:
-	QFile file;
-	QJsonDocument jsonDoc;
-	EJsonFileResult result;
+	// Holds the string for the error pop-up to be presented to the user.
+	const char* display;
 };

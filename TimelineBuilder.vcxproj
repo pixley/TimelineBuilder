@@ -5,6 +5,10 @@
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Development|x64">
+      <Configuration>Development</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|x64">
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
@@ -15,6 +19,7 @@
     <Keyword>QtVS_v304</Keyword>
     <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">10.0.19041.0</WindowsTargetPlatformVersion>
     <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">10.0.19041.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)'=='Development|x64'">10.0.19041.0</WindowsTargetPlatformVersion>
     <QtMsBuild Condition="'$(QtMsBuild)'=='' OR !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -25,6 +30,12 @@
     <SpectreMitigation>false</SpectreMitigation>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <SpectreMitigation>false</SpectreMitigation>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Development|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
@@ -54,6 +65,14 @@
     <QMakeCodeLines>
     </QMakeCodeLines>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Development|x64'" Label="QtSettings">
+    <QtInstall>$(SolutionDir)$(Platform)\Release\extern\qt6</QtInstall>
+    <QtModules>core;gui;widgets;svg</QtModules>
+    <QtBuildConfig>release</QtBuildConfig>
+    <QtQMakeTemplate>vcapp</QtQMakeTemplate>
+    <QMakeExtraArgs />
+    <QMakeCodeLines />
+  </PropertyGroup>
   <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
     <Message Importance="High" Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />
   </Target>
@@ -67,11 +86,16 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(QtMsBuild)\Qt.props" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Development|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(QtMsBuild)\Qt.props" />
+  </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Development|x64'" />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(SolutionDir)$(Platform)\$(Configuration)\extern\qt6\include;$(LOCALAPPDATA)\Programs\Python\Python39\include;$(SolutionDir)extern\pybind11\include\</AdditionalIncludeDirectories>
@@ -81,7 +105,8 @@
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
       <IntelJCCErratum>false</IntelJCCErratum>
-      <PreprocessorDefinitions>TB_MAP_IS_HASH=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>TB_MAP_IS_HASH=1;TB_DEVELOPMENT;TB_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(LOCALAPPDATA)\Programs\Python\Python39\libs;$(SolutionDir)$(Platform)/$(Configuration)/extern/qt6/lib</AdditionalLibraryDirectories>
@@ -97,10 +122,28 @@
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
       <IntelJCCErratum>false</IntelJCCErratum>
-      <PreprocessorDefinitions>TB_MAP_IS_HASH=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>TB_MAP_IS_HASH=1;TB_RELEASE;QT_NO_DEBUG_OUTPUT%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(LOCALAPPDATA)\Programs\Python\Python39\libs;$(SolutionDir)$(Platform)/$(Configuration)/extern/qt6/lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies);python39.lib</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Development|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(SolutionDir)$(Platform)\Release\extern\qt6\include;$(LOCALAPPDATA)\Programs\Python\Python39\include;$(SolutionDir)extern\pybind11\include\</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <UseStandardPreprocessor>true</UseStandardPreprocessor>
+      <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+      <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
+      <IntelJCCErratum>false</IntelJCCErratum>
+      <PreprocessorDefinitions>TB_MAP_IS_HASH=1;TB_DEVELOPMENT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(LOCALAPPDATA)\Programs\Python\Python39\libs;$(SolutionDir)$(Platform)/Release/extern/qt6/lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>%(AdditionalDependencies);python39.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -130,19 +173,35 @@
       <GenerateDebugInformation>false</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Development|x64'" Label="Configuration">
+    <ClCompile>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>MaxSpeed</Optimization>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="source\JsonFiles.cpp" />
+    <ClCompile Include="source\Logging.cpp" />
     <ClCompile Include="source\Settings.cpp" />
-    <ClCompile Include="source\TBEra.cpp" />
-    <ClCompile Include="source\TBTimeline.cpp" />
+    <ClCompile Include="source\Era.cpp" />
+    <ClCompile Include="source\Timeline.cpp" />
     <ClCompile Include="source\TestSuite.cpp" />
+    <ClCompile Include="source\UserException.cpp" />
+    <ClCompile Include="source\UserFiles.cpp" />
     <QtRcc Include="TimelineBuilder.qrc" />
     <QtUic Include="TimelineBuilder.ui" />
     <QtMoc Include="source/TimelineBuilder.h" />
     <ClCompile Include="source/Calendar.cpp" />
     <ClCompile Include="source/CommonTypes.cpp" />
     <ClCompile Include="source/JsonableObject.cpp" />
-    <ClCompile Include="source/TBEvent.cpp" />
+    <ClCompile Include="source\Event.cpp" />
     <ClCompile Include="source/Time.cpp" />
     <ClCompile Include="source/TimelineBuilder.cpp" />
     <ClCompile Include="source/main.cpp" />
@@ -152,15 +211,17 @@
     <ClInclude Include="source/Calendar.h" />
     <ClInclude Include="source/CommonTypes.h" />
     <ClInclude Include="source/JsonableObject.h" />
-    <ClInclude Include="source/TBEra.h" />
-    <ClInclude Include="source/TBEvent.h" />
-    <ClInclude Include="source/TBTimeline.h" />
+    <ClInclude Include="source\Era.h" />
+    <ClInclude Include="source\Event.h" />
+    <ClInclude Include="source\Timeline.h" />
     <ClInclude Include="source/Time.h" />
     <ClInclude Include="source\CommonConcepts.h" />
     <ClInclude Include="source\JsonFiles.h" />
     <ClInclude Include="source\Logging.h" />
     <ClInclude Include="source\Settings.h" />
     <ClInclude Include="source\TestSuite.h" />
+    <ClInclude Include="source\UserException.h" />
+    <ClInclude Include="source\UserFiles.h" />
     <ClInclude Include="source\Version.h" />
   </ItemGroup>
   <ItemGroup>

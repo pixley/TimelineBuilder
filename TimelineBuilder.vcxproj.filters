@@ -49,7 +49,7 @@
     <ClCompile Include="source/CommonTypes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source/TBEvent.cpp">
+    <ClCompile Include="source\Event.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source/Calendar.cpp">
@@ -64,18 +64,27 @@
     <ClCompile Include="source\JsonFiles.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\TBEra.cpp">
+    <ClCompile Include="source\Era.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\TBTimeline.cpp">
+    <ClCompile Include="source\Timeline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\Settings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\UserException.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Logging.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\UserFiles.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="source/TBEvent.h">
+    <ClInclude Include="source\Event.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="source/CommonTypes.h">
@@ -84,13 +93,13 @@
     <ClInclude Include="source/JsonableObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source/TBTimeline.h">
+    <ClInclude Include="source\Timeline.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="source/Calendar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source/TBEra.h">
+    <ClInclude Include="source\Era.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="source/Time.h">
@@ -115,6 +124,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="source\Settings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\UserException.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\UserFiles.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

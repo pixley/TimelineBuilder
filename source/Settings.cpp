@@ -15,13 +15,14 @@
 	TimelineBuilder. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "Settings.h"
-#include "Logging.h"
-
 #include <QtCore/QSettings>
 #include <QtCore/QDir>
 
 #include <stdexcept>
+
+#include "Settings.h"
+#include "Logging.h"
+#include "UserFiles.h"
 
 QSettings* InitializeIniFile(const QString& FileName, const QDir& FileDir)
 {
@@ -37,45 +38,13 @@ DefaultFiles.insert(TBSettingsFile::SettingsType, InitializeIniFile("Default##Se
 
 TBSettings* TBSettings::singleton = nullptr;
 
-TBSettings::TBSettings(const QCoreApplication& app) :
-	Parser(),
-	DevConfigPath("devconfigpath", "If this option is present, write config files to the project directory rather than AppData (or the equivalent for your platform)."),
+TBSettings::TBSettings() :
 	DefaultFiles(),
 	SettingsFiles()
 {
-	Parser.addOption(DevConfigPath);
-	Parser.process(app);
-
 	// Establish the path to the config folder
-	QDir configPath;
-	if (Parser.isSet(DevConfigPath))
-	{
-		// In development mode, save config files to the "saved" folder in the project directory
-		configPath = QDir::current();
-		if (!configPath.exists("saved/config"))
-		{
-			configPath.mkdir("saved/config");
-		}
-		configPath.cd("saved/config");
-	}
-	else
-	{
-		// Start from the user's home directory and navigate to the appropriate place to store app config files
-		configPath = QDir::home();
-
-#if defined(Q_OS_WINDOWS)
-		// Navigate to the TimelineBuilder folder in %APPDATALOCAL%
-		configPath.cd("AppData/Local");
-
-		if (!configPath.exists("TimelineBuilder/config"))
-		{
-			configPath.mkdir("TimelineBuilder/config");
-		}
-		configPath.cd("TimelineBuilder/config");
-#else
-		static_assert(false, "Unsupported platform for TBSettings!");
-#endif
-	}
+	QDir configPath = TBUserFiles::GetBasePath();
+	configPath.cd("config");
 
 	// This needs to be done for each value in TBSettingsFile
 	INIT_DEFAULT_INI_FILE(System);
@@ -101,7 +70,7 @@ TBSettings::~TBSettings()
 	}
 }
 
-void TBSettings::Initialize(const QCoreApplication& app)
+void TBSettings::Initialize()
 {
 	if (singleton != nullptr)
 	{
@@ -109,7 +78,7 @@ void TBSettings::Initialize(const QCoreApplication& app)
 	}
 	else
 	{
-		singleton = new TBSettings(app);
+		singleton = new TBSettings();
 	}
 }
 

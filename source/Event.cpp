@@ -15,7 +15,7 @@
 	TimelineBuilder. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "TBEvent.h"
+#include "Event.h"
 
 TBEvent::TBEvent() : JsonableObject(),
 	Name(),

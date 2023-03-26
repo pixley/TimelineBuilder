@@ -1,7 +1,7 @@
 /*
 	Copyright (c) 2022 Tyler Pixley, all rights reserved.
 
-	This file (JsonFiles.h) is part of TimelineBuilder.
+	This file (UserException.cpp) is part of TimelineBuilder.
 
 	TimelineBuilder is free software: you can redistribute it and/or modify it under
 	the terms of the GNU General Public License as published by the Free Software
@@ -15,34 +15,27 @@
 	TimelineBuilder. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#include "UserException.h"
 
-#include "CommonTypes.h"
+#include <QtCore/QByteArray>
 
-#include <QtCore/QFile>
-#include <QtCore/QJsonDocument>
+TBUserException::TBUserException(const QString& inWhat, const QString& inDisplay) :
+	TBUserException(inWhat.toUtf8().constData(), inDisplay.toUtf8().constData())
+{}
 
-enum class EJsonFileResult : uint8
+TBUserException::TBUserException(const char* inWhat, const char* inDisplay) :
+	std::runtime_error(inWhat), display(nullptr)
 {
-	Pending,
-	Success,
-	NoFileSpecified,
-	FileNotFound,
-	FileNotJson
-};
+	if (inDisplay != nullptr)
+	{
 
-class TBJsonFile
+	}
+}
+
+TBUserException::~TBUserException()
 {
-public:
-	TBJsonFile();
-	TBJsonFile(const QString& filePath, QIODeviceBase::OpenMode openMode);
-	// Only need auto-destructor at present because QFile's destructor handles closing the file.
-
-	EJsonFileResult GetJsonDocument(QJsonDocument*& outJsonDoc);
-	bool SaveJsonDocument();
-
-private:
-	QFile file;
-	QJsonDocument jsonDoc;
-	EJsonFileResult result;
-};
+	if (display != nullptr)
+	{
+		delete display;
+	}
+}

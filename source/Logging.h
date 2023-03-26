@@ -31,48 +31,59 @@
 // implicitly convertable to QString, which does not include number types.
 #define IMPLEMENT_LOG(LogFunctionName, QLogMacro) \
 template<typename... Args> \
-static void LogFunctionName(const char * line, Args&&... args) \
+static void LogFunctionName(const char * message, Args&&... args) \
 { \
-	LogFunctionName(QString(line), std::forward<Args>(args)...); \
+	LogFunctionName(QString(message), std::forward<Args>(args)...); \
 } \
 template<typename... Args> \
-static void LogFunctionName(const QString& line, Args&&... args) \
+static void LogFunctionName(const QString& message, Args&&... args) \
 { \
 	if constexpr (sizeof...(Args) == 0) \
 	{ \
-		QLogMacro(line.toUtf8()); \
+		QLogMacro(message.toUtf8()); \
 	} \
 	else if constexpr (sizeof...(Args) == 1) \
 	{ \
-		QLogMacro(line.arg(args...).toUtf8()); \
+		QLogMacro(message.arg(args...).toUtf8()); \
 	} \
 	else \
 	{ \
-		QLogMacro(line.arg(ToString<Args>(std::forward<Args>(args))...).toUtf8()); \
+		QLogMacro(message.arg(ToString<Args>(std::forward<Args>(args))...).toUtf8()); \
 	} \
 }
 
 class TBLog
 {
 public:
+	// This is a static method class only.  Never instantiate.
+	TBLog() = delete;
+
 	/*
-		These logging functions encode the line parameter as UTF-8 and output them through
+		These logging functions encode the message parameter as UTF-8 and output them through
 		one of Qt's logging macros.  The log types have been renamed to match the Unreal
 		Engine 4/5 pattern, because I like it better that way.
 	*/
 
-	// void Log(const QString& line, Args&&... args)
+	static void Initialize();
+	static void Cleanup();
+
+	// void Log(const QString& message, Args&&... args)
 	IMPLEMENT_LOG(Log, qInfo)
-	// void Debug(const QString& line, Args&&... args)
+	// void Debug(const QString& message, Args&&... args)
 	IMPLEMENT_LOG(Debug, qDebug)
-	// void Warning(const QString& line, Args&&... args)
+	// void Warning(const QString& message, Args&&... args)
 	IMPLEMENT_LOG(Warning, qWarning)
-	// void Error(const QString& line, Args&&... args)
+	// void Error(const QString& message, Args&&... args)
 	IMPLEMENT_LOG(Error, qCritical)
-	// void Fatal(const QString& line, Args&&... args)
+	// void Fatal(const QString& message, Args&&... args)
 	IMPLEMENT_LOG(Fatal, qFatal)
 
 private:
+	// This should never be called directly.  It is instead given to qInstallMessageHandler.
+	static void Handler(QtMsgType messageType, const QMessageLogContext& context, const QString& message);
+
+	static class QFile* LogFile;
+
 	template<typename T>
 	static QString ToString(const T& input)
 	{

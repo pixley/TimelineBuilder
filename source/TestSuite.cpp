@@ -62,7 +62,7 @@ bool TBTestSuite::CalendarSystemTest()
 
 	QString jsonPath = QString("scripts/%0.json").arg(testSystem);
 	TBJsonFile jsonFile(jsonPath, QIODevice::ReadOnly);
-	QJsonDocument calendarData;
+	QJsonDocument* calendarData = nullptr;
 	EJsonFileResult openResult = jsonFile.GetJsonDocument(calendarData);
 
 	if (openResult == EJsonFileResult::Success)
@@ -71,6 +71,8 @@ bool TBTestSuite::CalendarSystemTest()
 	}
 	else
 	{
+		assert(calendarData != nullptr);
+
 		switch (openResult)
 		{
 		case EJsonFileResult::FileNotFound:
@@ -88,7 +90,7 @@ bool TBTestSuite::CalendarSystemTest()
 	}
 
 	TBCalendarSystem calendarSystem;
-	calendarSystem.LoadFromJson(calendarData.object());
+	calendarSystem.LoadFromJson(calendarData->object());
 	if (!calendarSystem.IsValid())
 	{
 		TBLog::Error("Error populating calendar system from JSON data.  Test aborted.");

@@ -24,17 +24,19 @@
 #include <QtCore/QString>
 #include <QtCore/QList>
 
+#include <memory>
+
 // Forward-declaring
 namespace pybind11
 {
 	class module_;
+	class object;
 }
 
 class TBCalendarSystem : public JsonableObject
 {
 public:
 	TBCalendarSystem();
-	virtual ~TBCalendarSystem();
 
 	virtual bool LoadFromJson(const QJsonObject& jsonObject) override;
 	virtual void PopulateJson(QJsonObject& jsonObject) const override;
@@ -62,7 +64,9 @@ private:
 	QString Name;
 	QString ScriptName;
 	QString Description;
-	pybind11::module_* CalendarScript;
+
+	std::unique_ptr<pybind11::module_> CalendarScript;
+	std::unique_ptr<pybind11::object> CalendarObject;
 
 	// These values won't change during script execution, so we cache them right after initializing the script
 	int32 CachedBrokenDateLength;

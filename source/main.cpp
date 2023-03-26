@@ -15,10 +15,41 @@
 	TimelineBuilder. If not, see <https://www.gnu.org/licenses/>.
 */
 
+/*
+	Begin build guarding
+	These preprocessor directives ensure easy detection of invalid build environments.
+	This is before any includes, specifically the Qt6 ones, so we have to use ISO and platform macros.
+
+	The following build configurations will never be supported:
+	- C++ standards prior to C++20 (use of concepts)
+	- Sub-64-bit architectures (heavy use of int64 and double)
+	- Compilers that don't support "#pragma once" (include guard macros are ugly)
+*/
+
+#if __cplusplus < 202002L
+#error "TimelineBuilder requires C++20 or later!"
+#endif //__cplusplus
+
+#ifdef _WIN64
+#ifndef _M_AMD64
+#error "TimelineBuilder only supports x86_64 builds on Windows!"
+#endif //_M_AMD64
+// Windows x64 builds supported.  All good here.
+#elif defined(_WIN32)
+#error "TimelineBuilder does not support 32-bit builds!"
+#else
+#error "This platform is not yet supported by TimelineBuilder!"
+#endif //_WIN64, _WIN32
+
+/*
+	End build guarding
+*/
+
 #include "PyBind.h"		// This has to come first in order to not conflict with Qt includes
 #include "pybind11/embed.h"
 #include "Version.h"
 #include "TimelineBuilder.h"
+#include "UserFiles.h"
 #include "Logging.h"
 #include "Settings.h"
 #include "TestSuite.h"
@@ -26,9 +57,9 @@
 #include <QtWidgets/QApplication>
 
 #include <iostream>
-#if defined(Q_OS_WINDOWS)
+#ifdef Q_OS_WINDOWS
 #include <Windows.h>
-#endif
+#endif //Q_OS_WINDOWS
 
 namespace py = pybind11;
 
@@ -36,18 +67,19 @@ int cleanupAfter(int exitCode)
 {
 	// Any pre-exit logic we want to run goes here.
 	TBSettings::Cleanup();
+	TBLog::Cleanup();
 
 	return exitCode;
 }
 
 int main(int argc, char *argv[])
 {
-#if defined(Q_OS_WINDOWS)
+#ifdef Q_OS_WINDOWS
 	// Set the console to use UTF-8 and then allocate a buffer to allow multi-byte characters to print
 	SetConsoleOutputCP(CP_UTF8);
 	setvbuf(stdout, nullptr, _IOFBF, 4);
 	setvbuf(stderr, nullptr, _IOFBF, 4);
-#endif
+#endif //Q_OS_WINDOWS
 
 	// Initialize the Qt application
 	QApplication app(argc, argv);
@@ -57,9 +89,16 @@ int main(int argc, char *argv[])
 	QApplication::setOrganizationName("Tyler Pixley");
 	QApplication::setOrganizationDomain("https://pixley.github.io");
 
-	// Initialize settings
+	// Initialize user files
+	// This must be done before any use of user files, such as logging or settings.
 	// This needs to be done after Qt app initialization so that we can carry forward some app info
-	TBSettings::Initialize(app);
+	TBUserFiles::Initialize(app);
+
+	// Initialize logging
+	TBLog::Initialize();
+
+	// Initialize settings
+	TBSettings::Initialize();
 
 	// Do some Python initialization
 	py::scoped_interpreter pythonInterpreter;

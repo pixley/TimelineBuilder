@@ -1,6 +1,6 @@
 ﻿extensions: .cpp .h .inl
 /*
-	Copyright (c) 2022 Tyler Pixley, all rights reserved.
+	Copyright (c) %CurrentYear% Tyler Pixley, all rights reserved.
 
 	This file (%FileName%) is part of TimelineBuilder.
 
@@ -18,7 +18,7 @@
 
 extensions: .py
 # ===================
-# Copyright (c) 2022 Tyler Pixley, all rights reserved.
+# Copyright (c) %CurrentYear% Tyler Pixley, all rights reserved.
 # 
 # This file (%FileName%) is part of TimelineBuilder.
 #

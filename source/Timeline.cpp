@@ -15,10 +15,10 @@
 	TimelineBuilder. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "TBTimeline.h"
+#include "Timeline.h"
 #include "CommonTypes.h"
-#include "TBEra.h"
-#include "TBEvent.h"
+#include "Era.h"
+#include "Event.h"
 #include "Calendar.h"
 
 #include <QtCore/QUuid>

@@ -1,7 +1,7 @@
 /*
-	Copyright (c) 2022 Tyler Pixley, all rights reserved.
+	Copyright (c) 2023 Tyler Pixley, all rights reserved.
 
-	This file (JsonFiles.h) is part of TimelineBuilder.
+	This file (UserFiles.h) is part of TimelineBuilder.
 
 	TimelineBuilder is free software: you can redistribute it and/or modify it under
 	the terms of the GNU General Public License as published by the Free Software
@@ -17,32 +17,20 @@
 
 #pragma once
 
-#include "CommonTypes.h"
+#include <QtCore/QDir>
+#include <QtCore/QCoreApplication>
 
-#include <QtCore/QFile>
-#include <QtCore/QJsonDocument>
-
-enum class EJsonFileResult : uint8
-{
-	Pending,
-	Success,
-	NoFileSpecified,
-	FileNotFound,
-	FileNotJson
-};
-
-class TBJsonFile
+class TBUserFiles
 {
 public:
-	TBJsonFile();
-	TBJsonFile(const QString& filePath, QIODeviceBase::OpenMode openMode);
-	// Only need auto-destructor at present because QFile's destructor handles closing the file.
+	// This is a static method class only.  Never instantiate.
+	TBUserFiles() = delete;
 
-	EJsonFileResult GetJsonDocument(QJsonDocument*& outJsonDoc);
-	bool SaveJsonDocument();
+	static void Initialize(const QCoreApplication& app);
+	static void Cleanup();
+
+	static QDir GetBasePath();
 
 private:
-	QFile file;
-	QJsonDocument jsonDoc;
-	EJsonFileResult result;
+	static QDir* CachedBasePath;
 };
