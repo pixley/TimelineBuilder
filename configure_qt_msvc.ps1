@@ -49,6 +49,15 @@ function Finished
 	}
 }
 
+# If Visual Studio is open, finish the script with an error
+# Using the Ignore error action because Visual Studio **not** running is what we want.
+if ((Get-Process devenv -ErrorAction Ignore) -ne $Null)
+{
+	Write-Error "Please close Visual Studio and try again."
+	Finished -error
+}
+Write-Output "Visual Studio is not running.  Clear to proceed."
+
 if ($PSVersionTable.PSVersion.Major -lt 7)
 {
 	Write-Error "Qt configuration script for TimelineBuilder requires PowerShell version 7 or later."
